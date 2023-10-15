@@ -1,0 +1,62 @@
+const express = require("express");
+const mysql = require('mysql');
+const cors = require('cors');
+const bodyParser = require("body-parser");
+const crypto = require('crypto');
+const secretKey = crypto.randomBytes(32).toString('hex');
+const jwt = require('jsonwebtoken');
+console.log('Generated Secret Key:', secretKey);
+
+const app = express();
+const port = 3456;
+
+app.use(cors({
+  origin: ['http://localhost:5173','https://www.thunderclient.com/*'],
+  credentials: true,
+}));
+
+const con = mysql.createConnection({
+  host: "34.143.179.46",
+  user: "root",
+  password: "1234",
+  database: "garages",
+  port: 3306
+});
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json())
+
+try {
+	app.listen(port, () => {
+		console.log(`Connected successfully on port ${port}`);
+	});
+} catch (error) {
+	console.error(`Error occurred: ${error.message}`);
+}
+
+app.get("/", (req, res) => {
+  res.send('Hello')
+});
+
+app.get("/world", (req, res) => {
+  res.send('Hello World')
+});
+
+app.get("/vercel", (req, res) => {
+  res.send('Hello Vercel')
+});
+
+app.get('/fetchreserve', (req, res) => {
+  const query = 'SELECT * FROM reserve';
+  con.query(query, (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ error: 'An error occurred' });
+    } else {
+      res.send(results);
+    }
+  });
+});
+
+module.exports = app;
