@@ -72,7 +72,7 @@ function Navbar() {
         {auth ?(
         <div>
           <li>
-            <Link className='white-text' to='/dashboard/summary'>{firstname} {lastname}</Link>
+            <Link className='white-text' to='/dashboard'>{firstname} {lastname}</Link>
             <button className='btn-logout btn-logout-light' onClick={handleLogout} >Logout</button>
           </li>
         </div>

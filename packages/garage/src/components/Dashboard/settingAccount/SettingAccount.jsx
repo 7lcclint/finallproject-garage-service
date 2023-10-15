@@ -9,93 +9,49 @@ import pk from '../../../assets/images/profiles/pk.jpg'
 
 const SettingAccount = () => {
 
-    /* const [selectedFile, setSelectedFile] = useState(null);
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setSelectedFile(file);
-    };
-
-    const handleUpload = async () => {
-        if (selectedFile) {
-        const formData = new FormData();
-        formData.append('image', selectedFile);
-
-        try {
-            const response = await fetch('http://localhost:3456/upload', {
-            method: 'POST',
-            body: formData,
-            });
-
-            if (response.ok) {
-            console.log('File uploaded successfully.');
-            const data = await response.json(); // Parse the response JSON
-            const imagePath = data.imagePath;
-            console.log('File uploaded successfully. Image path:', imagePath);
-            } else {
-            console.error('File upload failed.');
-            }
-        } catch (error) {
-            console.error('File upload failed:', error);
-        }
-        }
-    }; */
-           {/*  <div>
-            <h2>Setting Account</h2>
-            <div className="container">
-                <div className="row">
-                <div className="col-xs-6 col-md-4">
-                    {selectedFile ? (
-                    <img src={URL.createObjectURL(selectedFile)} className="rounded-circle" alt="User Avatar" />
-                    ) : (
-                    <img src="/noavatar.png" className="rounded-circle" alt="User Avatar" />
-                    )}
-                </div>
-                </div>
-            </div>
-            <div className="settingAccount-container">
-                <form>
-                <div className="form-group">
-                    <label htmlFor="image">Upload Image</label>
-                    <input type="file" id="image" accept="image/*" onChange={handleFileChange} />
-                </div>
-                <button type="button" onClick={handleUpload}>
-                    Upload Image
-                </button>
-                </form>
-            </div>
-        </div> */}
-
-    const [ firstName, setFirstName ] = useState();
+    /* const [ firstName, setFirstName ] = useState();
     const [ lastName, setLastName ] = useState();
     const [ phone, setPhone ] = useState();
     const [ email, setEmail ] = useState();
-    //const [ profile, setProfile ] = useState();
     const [ street, setStreet ] = useState();
     const [ province, setProvince ] = useState();
     const [ district, setDistrict ] = useState();
     const [ subdistrict, setSubdistrict ] = useState();
-    const [ zipcode, setZipcode ] = useState();
-    const [ auth, setAuth] = useState(false);
+    const [ zipcode, setZipcode ] = useState(); */
+    /* const [ auth, setAuth] = useState(false); */
+
+    const [userData, setUserData] = useState({
+        user_id: '',
+        firstName: '',
+        lastName: '',
+        phone: '',
+        email: '',
+        street: '',
+        province: '',
+        district: '',
+        subdistrict: '',
+        zipcode: '',
+    });
 
     axios.defaults.withCredentials = true;
-    useEffect(() => {
+    /* useEffect(() => {
       axios.get('http://localhost:3456/')
       .then(response => {
         console.log(response)
         if (response.data.Status === "Successfully"){
           setAuth(true);
-          window.localStorage.setItem('isLoggedIn', true);
-          setFirstName(response.data.firstname);
-          setLastName(response.data.lastname);
-          setPhone(response.data.phone);
-          setEmail(response.data.email);
-          setStreet(response.data.address_street);
-          setProvince(response.data.address_province);
-          setDistrict(response.data.address_district);
-          setSubdistrict(response.data.address_subdistrict);
-          setZipcode(response.data.address_zipcode);
-          console.log(response.data);
+          setUserData({
+            user_id: response.data.user_id,
+            firstName: response.data.firstname,
+            lastName: response.data.lastname,
+            phone: response.data.phone,
+            email: response.data.email,
+            street: response.data.address_street,
+            province: response.data.address_province,
+            district: response.data.address_district,
+            subdistrict: response.data.address_subdistrict,
+            zipcode: response.data.address_zipcode,
+          });
         }else{
           setAuth(false);
           console.log(auth)
@@ -103,37 +59,51 @@ const SettingAccount = () => {
         }
       })
       .then(error => console.log(error));
-    }, [auth]);
+    }, []); */
+    useEffect(() => {
+        axios.get('http://localhost:3456/')
+          .then(response => {
+            console.log(response);
+            if (response.data.Status === "Successfully") {
+              setUserData({
+                user_id: response.data.user_id,
+                firstName: response.data.firstname,
+                lastName: response.data.lastname,
+                phone: response.data.phone,
+                email: response.data.email,
+                street: response.data.address_street,
+                province: response.data.address_province,
+                district: response.data.address_district,
+                subdistrict: response.data.address_subdistrict,
+                zipcode: response.data.address_zipcode,
+              });
+            } else {
+              console.log(response.data.Error);
+            }
+          })
+          .catch(error => console.log(error));
+      }, []);
 
     const [ enable, setEnable ] = useState(true);
     const handleEdit = () =>{
         setEnable(!enable);
     }
 
-/*     const handleSave = () => {
-        // Prepare the data for update
-        const updatedUserData = {
-          firstName,
-          lastName,
-          phone,
-          email,
-          street,
-          province,
-          district,
-          subdistrict,
-          zipcode,
-        };
-    
-        axios.put('http://localhost:3456/updateUser', updatedUserData)
-          .then((response) => {
-            if (response.data.message === 'User data updated successfully') {
-              console.log('User data updated successfully');
+    const handleSave = () => {
+        axios.put('http://localhost:3456/update-user-data', userData)
+        .then(response => {
+            if (response.data && response.data.message) {
+            console.log('User data updated successfully');
+            alert('User data updated');
+            setEnable(!enable);
+            } else {
+            console.error('Error updating user data:', response.data);
             }
-          })
-          .catch((error) => {
+        })
+        .catch(error => {
             console.error('Error updating user data:', error);
         });
-    }; */
+    };
 
     return (
         <>
@@ -144,7 +114,7 @@ const SettingAccount = () => {
                 <div className="info">
                     <div className="topInfo">
                         <img src={pk} alt="" />
-                        <button onClick={handleEdit} className={enable ? 'edit-button-red' : 'edit-button-blue'}>
+                        <button onClick={enable ? handleEdit : handleSave} className={enable ? 'edit-button-red' : 'edit-button-blue'}>
                             {enable ? 'แก้ไขข้อมูล' : 'บันทึกข้อมูล'}
                         </button>
                     </div>
@@ -155,20 +125,20 @@ const SettingAccount = () => {
                                     <div>ชื่อ</div>
                                     <Form.Control
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={firstName}
-                                        placeholder={firstName} 
+                                        value={userData.firstName}
+                                        placeholder={userData.firstName} 
                                         disabled={enable}
-                                        onChange={(e) => setFirstName(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
                                     />
                                     </Col>
                                     <Col>
-                                    <div>สกุล</div>
+                                    <div>นามสกุล</div>
                                     <Form.Control
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={lastName}
-                                        placeholder={lastName} 
+                                        value={userData.lastName}
+                                        placeholder={userData.lastName} 
                                         disabled={enable}
-                                        onChange={(e) => setLastName(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
                                     />
                                     </Col>
                                 </Row>
@@ -177,18 +147,18 @@ const SettingAccount = () => {
                                         <div>เบอร์โทรศัพท์</div>
                                         <Form.Control 
                                             style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={phone}
-                                            placeholder={phone} 
+                                            value={userData.phone}
+                                            placeholder={userData.phone} 
                                             disabled={enable}
-                                            onChange={(e) => setPhone(e.target.value)}
+                                            onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
                                         />
                                     </Col>
                                     <Col>
                                         <div>อีเมล</div>
                                         <Form.Control 
                                             style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={email}
-                                            placeholder={email} 
+                                            value={userData.email}
+                                            placeholder={userData.email} 
                                             disabled
                                         />
                                     </Col>
@@ -201,20 +171,20 @@ const SettingAccount = () => {
                                     <div>ตำบล</div>
                                     <Form.Control 
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={subdistrict}
-                                        placeholder={subdistrict}
+                                        value={userData.subdistrict}
+                                        placeholder={userData.subdistrict}
                                         disabled={enable}
-                                        onChange={(e) => setSubdistrict(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, subdistrict: e.target.value })}
                                     />
                                     </Col>
                                     <Col>
                                     <div>อำเภอ</div>
                                     <Form.Control
-                                        value={district}
+                                        value={userData.district}
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        placeholder={district} 
+                                        placeholder={userData.district} 
                                         disabled={enable}
-                                        onChange={(e) => setDistrict(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, district: e.target.value })}
                                     />
                                     </Col>
                                 </Row>
@@ -222,21 +192,21 @@ const SettingAccount = () => {
                                     <Col>
                                     <div>จังหวัด</div>
                                     <Form.Control
-                                        value={province}
+                                        value={userData.province}
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        placeholder={province} 
+                                        placeholder={userData.province} 
                                         disabled={enable}
-                                        onChange={(e) => setProvince(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, province: e.target.value })}
                                     />
                                     </Col>
                                     <Col>
                                     <div>รหัสไปรษณีย์</div>
                                     <Form.Control
                                         style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={zipcode}
-                                        placeholder={zipcode} 
+                                        value={userData.zipcode}
+                                        placeholder={userData.zipcode} 
                                         disabled={enable}
-                                        onChange={(e) => setZipcode(e.target.value)}
+                                        onChange={(e) => setUserData({ ...userData, zipcode: e.target.value })}
                                     />
                                     </Col>
                                 </Row>
@@ -246,10 +216,10 @@ const SettingAccount = () => {
                                     <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
                                         <Form.Control as="textarea" rows={3} 
                                             style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={street}
-                                            placeholder={street} 
+                                            value={userData.street}
+                                            placeholder={userData.street} 
                                             disabled={enable}
-                                            onChange={(e) => setStreet(e.target.value)}
+                                            onChange={(e) => setUserData({ ...userData, street: e.target.value })}
                                         />
                                     </Form.Group>
                                     </Col>

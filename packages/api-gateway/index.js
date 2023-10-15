@@ -9,11 +9,21 @@ const salt = 10;
 const multer = require('multer');
 const dayjs = require('dayjs');
 
+const password = 'admin';
+
+bcrypt.hash(password, salt, (err, hash) => {
+  if (err) {
+    console.error('Error hashing password:', err);
+  } else {
+    console.log('Hashed password:', hash);
+  }
+});
+
 const app = express();
 app.use(express.json());
 app.use(cors({
   origin: ["http://localhost:5173"],
-  methods: ['POST', 'GET'],
+  methods: ['POST', 'GET', 'PUT'],
   credentials: true
 }));
 app.use(cookieParser());
@@ -156,57 +166,66 @@ app.post('/bookqueue', (req, res) => {
   });
 });
 
-app.put('/updateUser', (req, res) => {
+app.put('/update-user-data', verify, (req, res) => {
   const {
+    user_id,
     firstName,
     lastName,
     phone,
-    subdistrict,
-    district,
-    province,
-    zipcode,
+    email,
     street,
-    userId, // You'll need some way to identify the user, like their user ID
+    province,
+    district,
+    subdistrict,
+    zipcode,
   } = req.body;
 
   const sql = `
-    UPDATE users 
-    SET 
-      firstName = ?,
-      lastName = ?,
-      phone = ?,
-      subdistrict = ?,
-      district = ?,
-      province = ?,
-      zipcode = ?,
-      street = ?
-    WHERE
-      userId = ?
+    UPDATE garages.user
+    SET first_name = ?,
+        last_name = ?,
+        phone = ?,
+        email = ?,
+        address_street = ?,
+        address_province = ?,
+        address_district = ?,
+        address_subdistrict = ?,
+        address_zipcode = ?
+    WHERE user_id = ?;
   `;
 
   const values = [
     firstName,
     lastName,
     phone,
-    subdistrict,
-    district,
-    province,
-    zipcode,
+    email,
     street,
-    userId,
+    province,
+    district,
+    subdistrict,
+    zipcode,
+    user_id,
   ];
+
+  console.log('SQL Query:', sql);
+  console.log('Values:', values);
+  console.log(values);
 
   db.query(sql, values, (err, result) => {
     if (err) {
-      console.error('Error updating user data:', err.message);
-      res.status(500).json({ error: 'Error updating user data' });
+      console.error('Error updating user data:', err);
+      return res.status(500).json({ error: 'Error updating user data' });
+    } else if (result.changedRows === 0) {
+      console.error('No rows were updated');
+      return res.status(500).json({ error: 'No rows were updated' })
     } else {
       console.log('User data updated successfully');
-      res.status(200).json({ message: 'User data updated successfully' });
+      return res.status(200).json({ message: 'User data updated successfully' });
     }
   });
+});
 
-})
+
 
 db.connect((err) => {
   if (err) {
