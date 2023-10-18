@@ -10,6 +10,7 @@ function Navbar() {
   const handleClick = () => setClicked(!clicked);
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
+  const [userType, setUserType] = useState("");
 
   const [color, setColor] = useState(false);
   const changeColor = () => {
@@ -31,6 +32,7 @@ function Navbar() {
         window.localStorage.setItem('isLoggedIn', true);
         setFirstname(response.data.firstname);
         setLastname(response.data.lastname);
+        setUserType(response.data.user_type);
       }else{
         setAuth(false);
         console.log(auth)
@@ -50,6 +52,7 @@ function Navbar() {
       console.log(response);
     }).catch(error => console.log(error));
   }
+  
 
   return (
     <div className={color ? 'header header-bg' : 'header'}>
@@ -72,8 +75,17 @@ function Navbar() {
         {auth ?(
         <div>
           <li>
-            <Link className='white-text' to='/dashboard'>{firstname} {lastname}</Link>
-            <button className='btn-logout btn-logout-light' onClick={handleLogout} >Logout</button>
+            <Link 
+              className='white-text' 
+              to={
+                userType === 1 ? ('/dashboard/setting') :
+                userType === 2 ? ('/dashboard/setting') :
+                userType === 3 ? ('/dashboard/summary') :
+                ('/dashboard')
+              }>{firstname} {lastname}</Link>
+            <button 
+              className='btn-logout btn-logout-light' 
+              onClick={handleLogout} >Logout</button>
           </li>
         </div>
         ):(
