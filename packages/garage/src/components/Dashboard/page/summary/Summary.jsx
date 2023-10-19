@@ -1,5 +1,5 @@
 import ChartBox from '../../chartBox/ChartBox'
-import TopBox from '../../topbox/Topbox'
+import TopBox from '../../topBox/TopBox'
 import './summary.css'
 import {
   barChartBoxVisit,
