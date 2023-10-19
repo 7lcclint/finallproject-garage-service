@@ -52,7 +52,7 @@ function ReserveTable() {
 
     const handleRowClick = (params) => {
         setSelectedRow(params.row);
-        handleShow(); // Open the modal
+        handleShow();
     };
 
     useEffect(() => {
@@ -100,8 +100,8 @@ function ReserveTable() {
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');
-                setShow(!show); // Close the modal
-                reloadReservations(); // Reload the reservations data
+                setShow(!show);
+                reloadReservations();
                 setSelectedRow(null);
             })
             .catch((error) => {

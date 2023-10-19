@@ -23,7 +23,7 @@ function Promotions() {
     const [promotions, setPromotions] = useState([]);
     const reloadReservations = () => {
         axios
-            .get('http://localhost:3456/getPromotions') // Adjust the URL to match your server route
+            .get('http://localhost:3456/getPromotions')
             .then((response) => {
               console.log(response.data);
               setPromotions(
@@ -183,7 +183,7 @@ function Promotions() {
               .catch((error) => {
                 console.error('Error updating data:', error);
                 alert('Error updating data');
-              });
+            });
           }
         }
       };

@@ -135,6 +135,32 @@ function RepairTable() {
 
     const [add, setAdd] = useState();
 
+    const [promotions, setPromotions] = useState([]);
+    useEffect(() => {
+        axios
+            .get('http://localhost:3456/getPromotions')
+            .then((response) => {
+              console.log(response.data);
+              setPromotions(
+                    response.data.map((promotion, index) => ({
+                        id: index+1,
+                        promotion_id: promotion.promotion_id,
+                        promotion_name: promotion.promotion_name,
+                        promotion_detail: promotion.promotion_detail,
+                        promotion_code: promotion.promotion_code,
+                        money: promotion.money,
+                        percent: promotion.percent,
+                        start_date: promotion.start_date,
+                        end_date: promotion.end_date,
+                        promotion_status: promotion.promotion_status
+                    }))
+                );
+            })
+            .catch((error) => {
+                console.error('Error fetching reservations:', error);
+            });
+    }, []);
+
     const handleSubmit = () => {
         if (!selectedRow || selectedRow.repair_status === "เลือกอัปเดทสถานะ") {
             alert('กรุณารุบะสถานะการซ่อมที่ต้องเปลี่ยนเปลี่ยน');
@@ -152,14 +178,15 @@ function RepairTable() {
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');
-                setShow(!show); // Close the modal
-                reloadReservations(); // Reload the reservations data
+                setShow(!show);
+                reloadReservations();
                 setSelectedRow(null);
             })
             .catch((error) => {
                 console.error('Error updating data:', error);
                 alert('Error updating data');
-            });
+        });
+        
     };
 
     const [selectedOption, setSelectedOption] = useState(null);
@@ -216,7 +243,7 @@ function RepairTable() {
             >
                 <Modal.Header closeButton  onClick={handleShow}>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        จัดการรายการซ่อม
+                        {add ? 'เพิ่มรายการซ่อม' : 'จัดการรายการซ่อม'}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -275,118 +302,107 @@ function RepairTable() {
                                 <Form.Select 
                                     aria-label="Default select example"
                                     name="repair_status"
-                                    value={''}
+                                    value={selectedRow?.repair_status || ''}
                                     onChange={handleFormChange}
                                 >
                                         <option>เลือกอัปเดทสถานะ</option>
-                                        <option value="1">รับซ่อม</option>
                                         <option value="2">ตรวจสอบและประเมินความเสียหาย</option>
                                         <option value="3">อยู่ในระหว่างการดำเนินการซ่อม</option>
                                         <option value="4">ซ่อมเสร็จเรียบร้อย</option>
                                 </Form.Select>
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>รายละเอียด</Form.Label>
-                                <Form.Control
-                                    as="textarea"
-                                    type="text"
-                                    name="repair_detail"
-                                    value={''}
-                                    onChange={handleFormChange}
-                                />
-                            </div>
-                        </div>
                         </Form>
                     ):(
                         <Form>
-                    <div className="row">
-                        <div className="col">
-                            <Form.Label>ชื่อ</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="first_name"
-                                value={selectedRow?.firstname || ''}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                        <div className="col">
-                            <Form.Label>นามสกุล</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="last_name"
-                                value={selectedRow?.lastname || ''}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col">
-                            <Form.Label>ราคาเต็ม</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="full_service"
-                                value={selectedRow?.full_service || '-'}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                        <div className="col">
-                            <Form.Label>ราคาหลังหักส่วนลด</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="discount_service"
-                                value={selectedRow?.discount_service || '-'}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col">
-                            <Form.Label>โปรโมชั่นที่ใช้</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="promotion_name"
-                                value={selectedRow?.promotion_name || '-'}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col">
-                            <Form.Label>รายการ</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                type="text"
-                                name="repair_detail"
-                                value={selectedRow?.repair_detail || ''}
-                                disabled
-                                onChange={handleFormChange}
-                            />
-                        </div>
-                        <div className="col">
-                            <Form.Label>สถานะ</Form.Label>
-                            <Form.Select 
-                                aria-label="Default select example"
-                                name="repair_status"
-                                value={selectedRow?.repair_status || ''}
-                                onChange={handleFormChange}
-                            >
-                                    <option>เลือกอัปเดทสถานะ</option>
-                                    <option value="0">ยกเลิก</option>
-                                    <option value="1">รับซ่อม</option>
-                                    <option value="2">ตรวจสอบและประเมินความเสียหาย</option>
-                                    <option value="3">อยู่ในระหว่างการดำเนินการซ่อม</option>
-                                    <option value="4">ซ่อมเสร็จเรียบร้อย</option>
-                            </Form.Select>
-                        </div>
-                    </div>
-                    </Form>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>ชื่อ</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="first_name"
+                                        value={selectedRow?.firstname || ''}
+                                        disabled
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                                <div className="col">
+                                    <Form.Label>นามสกุล</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="last_name"
+                                        value={selectedRow?.lastname || ''}
+                                        disabled
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>ราคาเต็ม</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="full_service"
+                                        value={selectedRow?.full_service || '-'}
+                                        disabled={selectedRow?.repair_status !== '4'}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                                <div className="col">
+                                    <Form.Label>ราคาหลังหักส่วนลด</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="discount_service"
+                                        value={selectedRow?.discount_service || '-'}
+                                        disabled
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>โปรโมชั่นที่ใช้</Form.Label>
+                                    <Form.Select 
+                                    aria-label="Default select example"
+                                    disabled={selectedRow?.repair_status !== '4'}
+                                    >
+                                        <option>เลือกโปรโมชั่น</option>
+                                        {promotions.map((promotion)=>{
+                                            <option value={promotion.id} key={promotion.id}>
+                                                {promotions}
+                                            </option>
+                                        })}
+                                    </Form.Select>
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>รายการ</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        type="text"
+                                        name="repair_detail"
+                                        value={selectedRow?.repair_detail || ''}
+                                        disabled
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                                <div className="col">
+                                    <Form.Label>สถานะ</Form.Label>
+                                    <Form.Select 
+                                        aria-label="Default select example"
+                                        name="repair_status"
+                                        value={selectedRow?.repair_status || ''}
+                                        onChange={handleFormChange}
+                                    >
+                                            <option>เลือกอัปเดทสถานะ</option>
+                                            <option value="0">ยกเลิก</option>
+                                            <option value="3">อยู่ในระหว่างการดำเนินการซ่อม</option>
+                                            <option value="4">ซ่อมเสร็จเรียบร้อย</option>
+                                    </Form.Select>
+                                </div>
+                            </div>
+                        </Form>
                     )}
                 </Modal.Body>
                 <Modal.Footer>

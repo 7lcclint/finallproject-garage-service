@@ -5,20 +5,9 @@ import axios from 'axios';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import pk from '../../../assets/images/profiles/pk.jpg'
+import noavatar from '../../../../public/noavatar.png';
 
 const SettingAccount = () => {
-
-    /* const [ firstName, setFirstName ] = useState();
-    const [ lastName, setLastName ] = useState();
-    const [ phone, setPhone ] = useState();
-    const [ email, setEmail ] = useState();
-    const [ street, setStreet ] = useState();
-    const [ province, setProvince ] = useState();
-    const [ district, setDistrict ] = useState();
-    const [ subdistrict, setSubdistrict ] = useState();
-    const [ zipcode, setZipcode ] = useState(); */
-    /* const [ auth, setAuth] = useState(false); */
 
     const [userData, setUserData] = useState({
         user_id: '',
@@ -34,32 +23,6 @@ const SettingAccount = () => {
     });
 
     axios.defaults.withCredentials = true;
-    /* useEffect(() => {
-      axios.get('http://localhost:3456/')
-      .then(response => {
-        console.log(response)
-        if (response.data.Status === "Successfully"){
-          setAuth(true);
-          setUserData({
-            user_id: response.data.user_id,
-            firstName: response.data.firstname,
-            lastName: response.data.lastname,
-            phone: response.data.phone,
-            email: response.data.email,
-            street: response.data.address_street,
-            province: response.data.address_province,
-            district: response.data.address_district,
-            subdistrict: response.data.address_subdistrict,
-            zipcode: response.data.address_zipcode,
-          });
-        }else{
-          setAuth(false);
-          console.log(auth)
-          console.log(response.data.Error)
-        }
-      })
-      .then(error => console.log(error));
-    }, []); */
     useEffect(() => {
         axios.get('http://localhost:3456/')
           .then(response => {
@@ -107,13 +70,12 @@ const SettingAccount = () => {
 
     return (
         <>
-
         Setting Account
         <div className="profile">
             <div className="view">
                 <div className="info">
                     <div className="topInfo">
-                        <img src={pk} alt="" />
+                        <img src={noavatar} alt="" />
                         <button onClick={enable ? handleEdit : handleSave} className={enable ? 'edit-button-red' : 'edit-button-blue'}>
                             {enable ? 'แก้ไขข้อมูล' : 'บันทึกข้อมูล'}
                         </button>

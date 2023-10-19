@@ -43,7 +43,6 @@ const Menu = () => {
       }).catch(error => console.log(error));
     }
     
-
   return (
     <div>
       {userType === 1 ? (
@@ -52,12 +51,12 @@ const Menu = () => {
           <span className="title">Main</span>
             <Link to='setting' className="listItem">
               <img src={profile} alt="" />
-              <span className="listItemTitle">Profile</span>
+              <span className="listItemTitle">ข้อมูลส่วนตัว</span>
             </Link>
             <Link to='calendar' className="listItem">
-              <img src={calendar} alt="" />
-              <span className="listItemTitle">Calendar</span>
-            </Link>
+                <img src={calendar} alt="" />
+                <span className="listItemTitle">รายการจองซ่อม</span>
+              </Link>
             <Link onClick={handleLogout} className="listItem">
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -136,15 +135,15 @@ const Menu = () => {
             </Link>
             <Link to='reports' className="listItem">
               <img src={orders} alt="" />
-              <span className="listItemTitle">รายงาน</span>
+              <span className="listItemTitle">รายงานการซ่อม</span>
             </Link>
             <Link to='reportsPromotions' className="listItem">
               <img src={orders} alt="" />
-              <span className="listItemTitle">รายงาน</span>
+              <span className="listItemTitle">รายงานโปรโมชั่น</span>
             </Link>
             <Link to='reportsRevenue' className="listItem">
               <img src={orders} alt="" />
-              <span className="listItemTitle">รายงาน</span>
+              <span className="listItemTitle">รายงานรายรับ</span>
             </Link>
             <Link onClick={handleLogout} className="listItem">
             <svg 

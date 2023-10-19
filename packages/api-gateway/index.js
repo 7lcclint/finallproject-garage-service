@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use('/', router);
 app.use(cors({
-  origin: ["http://localhost:5173"],
+  origin: ["http://localhost:5173", "https://garage-finall.netlify.app"],
   methods: ['POST', 'GET', 'PUT'],
   credentials: true
 }));
@@ -38,7 +38,7 @@ app.post('/register', function (req, res) {
       req.body.lastname,
       req.body.email,
       hash,
-      req.body.usertype
+      1
     ]
     db.query(sql, [VALUES], (err, result) => {
       if (err) {
@@ -108,7 +108,7 @@ app.post('/login', function (req, res) {
       bcrypt.compare(req.body.password.toString(), data[0].password, (err, result) => {
         if (err) return res.json({Error: "Passwords compare error"});
         if(result){
-          console.log(result);
+          console.log('login',result);
           const firstname = data[0].first_name;
           const lastname = data[0].last_name;
           const email = data[0].email;
@@ -421,6 +421,52 @@ app.get('/fullReports', (req, res) => {
       }));
       res.json(formattedResults);
     }
+  });
+});
+
+app.get('/promotionReportsByStartEnd', (req, res) => {
+
+  const { start_date, end_date } = req.query;
+  console.log(start_date, end_date);
+  if (!start_date || !end_date) {
+    res.status(400).json({ error: 'โปรดระบุวันที่เริ่มต้นและวันที่สิ้นสุด' });
+    return;
+  }
+
+  db.query('CALL promotionReportsByStartEnd(?, ?)', [start_date, end_date], (err, results) => {
+      if (err) {
+          console.error('Error calling stored procedure: ' + err);
+          res.status(500).json({ error: 'Error fetching data' });
+          return;
+      } else {
+        const formattedResults = results[0].map(result => ({
+          ...result,
+        }));
+        res.json(formattedResults);
+      }
+  });
+});
+
+app.get('/reportRevenueByStartEnd', (req, res) => {
+
+  const { start_date, end_date } = req.query;
+  console.log(start_date, end_date);
+  if (!start_date || !end_date) {
+    res.status(400).json({ error: 'โปรดระบุวันที่เริ่มต้นและวันที่สิ้นสุด' });
+    return;
+  }
+
+  db.query('CALL reportRevenueByStartEnd(?, ?)', [start_date, end_date], (err, results) => {
+      if (err) {
+          console.error('Error calling stored procedure: ' + err);
+          res.status(500).json({ error: 'Error fetching data' });
+          return;
+      } else {
+        const formattedResults = results[0].map(result => ({
+          ...result,
+        }));
+        res.json(formattedResults);
+      }
   });
 });
 

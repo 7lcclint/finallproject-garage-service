@@ -10,6 +10,7 @@ import { DataGrid } from '@mui/x-data-grid';
 function EmployeeTable() {
 
     const [show, setShow] = useState(false);
+    const [add, setAdd] = useState();
     const handleShow = () => {
         setShow(!show);
         console.log('show', show);
@@ -77,37 +78,52 @@ function EmployeeTable() {
             ...formData,
             [name]: value,
         });
+        if (name === 'status') {
+            setSelectedRow((prevSelectedRow) => ({
+                ...prevSelectedRow,
+                status: value,
+            }));
+        }
     };
 
     const handleSubmit = () => {
-      if (employees.length === 0 ) {
-          alert('Please fill in all the required fields.');
-          } else {
-              const data = {
-                  firstname: formData.firstname,
-                  lastname: formData.lastname,
-                  email: formData.email,
-                  password: formData.email,
-                  usertype: 2
-              };
+    if (employees.length === 0 ) {
+        alert('Please fill in all the required fields.');
+        } else {
+            const data = {
+                firstname: formData.firstname,
+                lastname: formData.lastname,
+                email: formData.email,
+                password: formData.email,
+                usertype: 2
+            };
 
-              console.log(data);
+            console.log(data);
     
-              // Send the data to the server via an API call
-              axios
-                  .post('http://localhost:3456/register', data)
-                  .then((response) => {
-                      console.log('Data inserted successfully:', response.data);
-                      alert('Data inserted successfully');
-                      setShow(!show); 
-                      reloadReservations(); 
-                  })
-                  .catch((error) => {
-                      console.error('Error inserting data:', error);
-                      alert('Error inserting data');
-              });
-          }
-      };
+            axios
+                .post('http://localhost:3456/register', data)
+                .then((response) => {
+                    console.log('Data inserted successfully:', response.data);
+                    alert('Data inserted successfully');
+                    setShow(!show); 
+                    reloadReservations(); 
+                })
+                .catch((error) => {
+                    console.error('Error inserting data:', error);
+                    alert('Error inserting data');
+            });
+        }
+    };
+
+    const [selectedRow, setSelectedRow] = useState(null);
+
+    const handleRowClick = (params) => {
+        setSelectedRow(params.row);
+        setAdd(false); 
+        handleShow();
+    };
+
+    
       
     return (
         <>
@@ -117,7 +133,7 @@ function EmployeeTable() {
                 </div>
                 <div className="col">
                     <div className="button-container">
-                        <Button onClick={handleShow} className='queue-btn queue-btn-light'>
+                        <Button onClick={()=>{handleShow(),setAdd(true)}} className='queue-btn queue-btn-light'>
                             เพิ่มบัญชีพนักงาน
                         </Button>
                     </div>
@@ -128,6 +144,8 @@ function EmployeeTable() {
                     className='data-gird'
                     rows={employees}
                     columns={columns}
+                    disableRowSelectionOnClick
+                    onRowClick={handleRowClick}
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },
@@ -145,11 +163,12 @@ function EmployeeTable() {
             >
                 <Modal.Header closeButton onClick={handleShow}>
                     <Modal.Title id="contained-modal-title-vcenter">
-                    เพิ่มบัญชีพนักงาน
+                        { add ? 'เพิ่มบัญชีพนักงาน' : 'ยกเลิกการใช้งานบัญชีพนักงาน' }
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form>
+                    {add ? (
+                        <Form>
                         <Form.Group className="mb-3" controlId="formBasicEmail">
                             <Form.Label>ชื่อ</Form.Label>
                             <Form.Control
@@ -178,13 +197,45 @@ function EmployeeTable() {
                             <strong>โปรดตรวจสอบข้อมูลก่อนกดยืนยัน</strong>
                         </Form.Group>
                     </Form>
+                    ) : (
+                        <Form>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>ชื่อ</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="repair_id"
+                                        value={selectedRow ? selectedRow.firstname : ''}
+                                        disabled
+                                    />
+                                </div>
+                                <div className="col">
+                                    <Form.Label>นามสกุล</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="full_employee_name"
+                                        value={selectedRow? selectedRow.lastname : ''}
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>อีเมล</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        name="repair_id"
+                                        value={selectedRow? selectedRow.email : ''}
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </Form>
+                    )}
                 </Modal.Body>
                 <Modal.Footer>
                     <div className='btn-save' onClick={handleSubmit}>
-                        บันทึกข้อมูล
-                    </div>
-                    <div className='btn-cancel' onClick={handleShow}>
-                        ยกเลิก
+                        ยืนยัน ยกเลิกการใช้งาน
                     </div>
                 </Modal.Footer>
             </Modal>

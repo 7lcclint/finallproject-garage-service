@@ -103,3 +103,23 @@
 .MuiDataGrid-virtualScrollerContent {
     text-align: center;
 }
+
+.mb-3 .css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root,
+.mb-3 .css-1d3z3hw-MuiOutlinedInput-notchedOutline,
+.mb-3 .css-1jy569b-MuiFormLabel-root-MuiInputLabel-root,
+.mb-3 .css-nxo287-MuiInputBase-input-MuiOutlinedInput-input{
+    color: black !important;
+    border-color: black !important;
+}
+
+.mb-3 .MuiSvgIcon-fontSizeMedium{
+    color: black;
+}
+
+.data-container .MuiSvgIcon-root ,
+.data-container .MuiSvgIcon-fontSizeSmall ,
+.data-container .css-ptiqhd-MuiSvgIcon-root,
+.data-container .css-c63i49-MuiInputBase-input-MuiInput-input,
+.data-container .css-c63i49-MuiInputBase-input-MuiInput-input{
+    color: white;
+}
