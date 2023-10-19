@@ -1,27 +1,27 @@
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Home from './components/MainPage/Home';
-import Services from './components/MainPage/Services';
-import Contact from './components/MainPage/Contact';
-import About from './components/MainPage/About';
-import Register from './components/Authentication/Register';
-import Login from './components/Authentication/Login';
-import Summary from './components/Dashboard/page/summary/Summary';
-import DashBoard from './components/Dashboard/DashBoard';
-import Users from './components/Dashboard/page/users/Users';
-import Products from './components/Dashboard/page/products/Products';
-import User from './components/Dashboard/page/user/User';
-import Product from './components/Dashboard/page/product/Product';
-import SettingAccount from './components/Dashboard/settingAccount/SettingAccount';
-import Calendar from './components/Dashboard/calendar/Calendar';
-import EmployeeTable from './components/Dashboard/employeeTable/EmployeeTable';
-import ReserveTable from './components/Dashboard/reserveTable/ReserveTable';
-import RepairTable from './components/Dashboard/repairTable/RepairTable';
-import Promotions from './components/Dashboard/promotionsTable/PromoTions';
-import Reports from './components/Dashboard/reports/Reports';
-import ReportsPromotions from './components/Dashboard/reportsPromotions/ReportsPromotions';
-import ReportsRevenue from './components/Dashboard/reportsRevenue/ReportsRevenue';
+import Home from './components/MainPage/Home.jsx';
+import Services from './components/MainPage/Services.jsx';
+import Contact from './components/MainPage/Contact.jsx';
+import About from './components/MainPage/About.jsx';
+import Register from './components/Authentication/Register.jsx';
+import Login from './components/Authentication/Login.jsx';
+import Summary from './components/Dashboard/page/summary/Summary.jsx';
+import DashBoard from './components/Dashboard/DashBoard.jsx';
+import Users from './components/Dashboard/page/users/Users.jsx';
+import Products from './components/Dashboard/page/products/Products.jsx';
+import User from './components/Dashboard/page/user/User.jsx';
+import Product from './components/Dashboard/page/product/Product.jsx';
+import SettingAccount from './components/Dashboard/settingAccount/SettingAccount.jsx';
+import Calendar from './components/Dashboard/calendar/Calendar.jsx';
+import EmployeeTable from './components/Dashboard/employeeTable/EmployeeTable.jsx';
+import ReserveTable from './components/Dashboard/reserveTable/ReserveTable.jsx';
+import RepairTable from './components/Dashboard/repairTable/RepairTable.jsx';
+import Promotions from './components/Dashboard/promotionsTable/PromoTions.jsx';
+import Reports from './components/Dashboard/reports/Reports.jsx';
+import ReportsPromotions from './components/Dashboard/reportsPromotions/ReportsPromotions.jsx';
+import ReportsRevenue from './components/Dashboard/reportsRevenue/ReportsRevenue.jsx';
 
 function App() {
 
