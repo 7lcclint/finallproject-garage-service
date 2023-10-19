@@ -18,7 +18,7 @@ import Calendar from './components/Dashboard/calendar/Calendar.jsx';
 import EmployeeTable from './components/Dashboard/employeeTable/EmployeeTable.jsx';
 import ReserveTable from './components/Dashboard/reserveTable/ReserveTable.jsx';
 import RepairTable from './components/Dashboard/repairTable/RepairTable.jsx';
-import Promotions from './components/Dashboard/promotionsTable/PromoTions.jsx';
+import Promotions from './components/Dashboard/promotionsTable/Promotions.jsx';
 import Reports from './components/Dashboard/reports/Reports.jsx';
 import ReportsPromotions from './components/Dashboard/reportsPromotions/ReportsPromotions.jsx';
 import ReportsRevenue from './components/Dashboard/reportsRevenue/ReportsRevenue.jsx';
