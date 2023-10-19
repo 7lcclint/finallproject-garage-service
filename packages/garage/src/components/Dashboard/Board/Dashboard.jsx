@@ -1,6 +1,6 @@
-import Menu from './Menu/Menu'
-import Footer from './footer/Footer';
-import Navbar from './navbar/Navbar'
+import Menu from '../Menu/Menu'
+import Footer from '../footer/Footer';
+import Navbar from '../navbar/Navbar'
 import './style/dashboardGlobal.css'
 import { Outlet} from "react-router-dom";
 

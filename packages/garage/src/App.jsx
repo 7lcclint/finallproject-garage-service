@@ -8,7 +8,7 @@ import About from './components/MainPage/About.jsx';
 import Register from './components/Authentication/Register.jsx';
 import Login from './components/Authentication/Login.jsx';
 import Summary from './components/Dashboard/page/summary/Summary.jsx';
-import DashBoard from './components/Dashboard/DashBoard.jsx';
+import DashBoard from './components/Dashboard/Board/Dashboard.jsx';
 import Users from './components/Dashboard/page/users/Users.jsx';
 import Products from './components/Dashboard/page/products/Products.jsx';
 import User from './components/Dashboard/page/user/User.jsx';
