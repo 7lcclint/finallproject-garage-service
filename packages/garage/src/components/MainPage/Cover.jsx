@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import './CoverStyle.css';
+import './cover.css';
 import PropTypes from 'prop-types';
 
 class Cover extends Component {

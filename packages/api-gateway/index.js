@@ -10,6 +10,7 @@ const router = express.Router();
 const app = express();
 app.use(express.json());
 app.use('/', router);
+
 app.use(cors({
   origin: ["http://localhost:5173", "https://garages-pro.netlify.app"],
   methods: ['POST', 'GET', 'PUT'],
