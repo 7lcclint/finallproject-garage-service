@@ -1,12 +1,12 @@
-import ChartBox from '../../chartBox/ChartBox'
+import ChartBox from '../chartBox/ChartBox'
 import './summary.css'
 import {
   barChartBoxVisit,
   chartBoxUser,
-} from "../../data";
-import BarChartBox from '../../barChartBox/BarChartBox';
-import PieChartBox from '../../pieCartBox/PieChartBox';
-import BigChartBox from '../../bigChartBox/BigChartBox';
+} from "../data";
+import BarChartBox from '../barChartBox/BarChartBox';
+import PieChartBox from '../pieCartBox/PieChartBox';
+import BigChartBox from '../bigChartBox/BigChartBox';
 import TopBox from '../topbox/TopBox';
 
 const Summary = () => {
