@@ -7,12 +7,8 @@ import Contact from './components/MainPage/Contact.jsx';
 import About from './components/MainPage/About.jsx';
 import Register from './components/Authentication/Register.jsx';
 import Login from './components/Authentication/Login.jsx';
-import Summary from './components/Dashboard/page/summary/Summary.jsx';
+import Summary from './components/Dashboard/summary/Summary.jsx';
 import DashBoard from './components/Dashboard/Board/Dashboard.jsx';
-import Users from './components/Dashboard/page/users/Users.jsx';
-import Products from './components/Dashboard/page/products/Products.jsx';
-import User from './components/Dashboard/page/user/User.jsx';
-import Product from './components/Dashboard/page/product/Product.jsx';
 import SettingAccount from './components/Dashboard/settingAccount/SettingAccount.jsx';
 import Calendar from './components/Dashboard/calendar/Calendar.jsx';
 import EmployeeTable from './components/Dashboard/employeeTable/EmployeeTable.jsx';
@@ -41,10 +37,6 @@ function App() {
       {isLoggedIn ? (
         <Route path="/dashboard/*" element={<DashBoard />}>
         <Route path="summary" element={<Summary />} />
-        <Route path="users" element={<Users />} />
-        <Route path="products" element={<Products />} />
-        <Route path="users/:id" element={<User />} />
-        <Route path="products/:id" element={<Product />} />
         <Route path="setting" element={<SettingAccount />} />
         <Route path="calendar" element={<Calendar />} />
         <Route path="employee" element={<EmployeeTable />} />

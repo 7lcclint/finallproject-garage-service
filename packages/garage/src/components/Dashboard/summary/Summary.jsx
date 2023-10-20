@@ -1,5 +1,4 @@
 import ChartBox from '../../chartBox/ChartBox'
-import TopBox from '../../topBox/TopBox.jsx'
 import './summary.css'
 import {
   barChartBoxVisit,
@@ -8,6 +7,7 @@ import {
 import BarChartBox from '../../barChartBox/BarChartBox';
 import PieChartBox from '../../pieCartBox/PieChartBox';
 import BigChartBox from '../../bigChartBox/BigChartBox';
+import TopBox from '../topbox/TopBox';
 
 const Summary = () => {
   return (
