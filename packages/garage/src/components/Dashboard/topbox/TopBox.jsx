@@ -1,4 +1,4 @@
-import './topBox.css'
+import './topbox.css'
 import {topDealUsers} from '../data.js'
 
 function TopBox() {
