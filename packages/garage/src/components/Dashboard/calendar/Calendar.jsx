@@ -29,7 +29,7 @@ function Calendar() {
 
     const fetchReservations = () => {
         axios
-            .get('http://localhost:3456/reservations')
+            .get('http://garage.thammadalok.com/api/reservations')
             .then((response) => {
                 console.log(response.data);
                 setReservations(
@@ -49,7 +49,7 @@ function Calendar() {
 
     const [userID, setUserID] = useState();
     useEffect(() => {
-        axios.get('http://localhost:3456/')
+        axios.get('http://localhost:3456/getUserByEmail')
       .then(response => {
         console.log(response)
         if (response.data.Status === "Successfully"){
@@ -115,7 +115,7 @@ function Calendar() {
             };
 
             axios
-                .post('http://localhost:3456/bookqueue', data)
+                .post('http://garage.thammadalok.com/api/bookqueue', data)
                 .then((response) => {
                     console.log('Data inserted successfully:', response.data);
                     alert('Data inserted successfully');

@@ -20,7 +20,7 @@ function EmployeeTable() {
 
     const reloadReservations = () => {
         axios
-            .get('http://localhost:3456/getCustomers') // Adjust the URL to match your server route
+            .get('http://garage.thammadalok.com/api/getCustomers') // Adjust the URL to match your server route
             .then((response) => {
               console.log(response.data);
                 setEmployees(
@@ -101,7 +101,7 @@ function EmployeeTable() {
             console.log(data);
     
             axios
-                .post('http://localhost:3456/register', data)
+                .post('http://http://garage.thammadalok.com/api//register', data)
                 .then((response) => {
                     console.log('Data inserted successfully:', response.data);
                     alert('Data inserted successfully');

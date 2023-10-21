@@ -17,7 +17,7 @@ function ReserveTable() {
     const [reserves, setReserves] = useState([]);
 
     const reloadReservations = () => {
-        axios.get('http://localhost:3456/allReservations')
+        axios.get('http://garage.thammadalok.com/api/allReservations')
             .then((response) => {
               console.log('reserve data: ',response.data);
               setReserves(
@@ -96,7 +96,7 @@ function ReserveTable() {
         console.log('data', data);
         console.log('data.reserve_id', selectedRow.reserve_id);
         axios
-            .put(`http://localhost:3456/updateReserveData/${selectedRow.reserve_id}`, data)
+            .put(`http://garage.thammadalok.com/api/updateReserveData/${selectedRow.reserve_id}`, data)
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');

@@ -24,7 +24,7 @@ const SettingAccount = () => {
 
     axios.defaults.withCredentials = true;
     useEffect(() => {
-        axios.get('http://localhost:3456/')
+        axios.get('http://garage.thammadalok.com/api/getUserDataByEmail')
           .then(response => {
             console.log(response);
             if (response.data.Status === "Successfully") {
@@ -53,7 +53,7 @@ const SettingAccount = () => {
     }
 
     const handleSave = () => {
-        axios.put('http://localhost:3456/update-user-data', userData)
+        axios.put('http://garage.thammadalok.com/api/update-user-data', userData)
         .then(response => {
             if (response.data && response.data.message) {
             console.log('User data updated successfully');

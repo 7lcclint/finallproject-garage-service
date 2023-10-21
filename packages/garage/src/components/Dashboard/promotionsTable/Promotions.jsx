@@ -23,7 +23,7 @@ function Promotions() {
     const [promotions, setPromotions] = useState([]);
     const reloadReservations = () => {
         axios
-            .get('http://localhost:3456/getPromotions')
+            .get('http://garage.thammadalok.com/api/getPromotions')
             .then((response) => {
               console.log(response.data);
               setPromotions(
@@ -141,7 +141,7 @@ function Promotions() {
               end_date: end,
             };
             axios
-              .post('http://localhost:3456/insertPromotion', data)
+              .post('http://garage.thammadalok.com/api/insertPromotion', data)
               .then((response) => {
                 console.log('Data inserted successfully:', response.data);
                 alert('Data inserted successfully');
@@ -171,7 +171,7 @@ function Promotions() {
 
             console.log(data);
             axios
-              .put(`http://localhost:3456/update-promotion/${data.promotionId}`, {
+              .put(`http://garage.thammadalok.com/api/update-promotion/${data.promotionId}`, {
                 promotionStatus: data.promotion_status,
               })
               .then((response) => {

@@ -15,7 +15,7 @@ const Menu = () => {
   
   axios.defaults.withCredentials = true;
     useEffect(() => {
-      axios.get('http://localhost:3456/')
+      axios.get('http://localhost:3456/getUserDataByEmail')
       .then(response => {
         console.log(response)
         if (response.data.Status === "Successfully"){

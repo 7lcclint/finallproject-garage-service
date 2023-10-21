@@ -13,7 +13,7 @@ function RepairTable() {
     const [reapares, setRepair] = useState([]);
 
     const reloadReservations = () => {
-        axios.get('http://localhost:3456/reservationsByStatusAccept')
+        axios.get('http://garage.thammadalok.com/api/reservationsByStatusAccept')
         .then((response) => {
             console.log('API Response:', response);
             console.log('reserve data:', response.data);
@@ -33,7 +33,7 @@ function RepairTable() {
         .catch((error) => {
             console.error('Error fetching promotiona:', error);
         });
-        axios.get('http://localhost:3456/repairData')
+        axios.get('http://garage.thammadalok.com/api/repairData')
             .then((response) => {
               console.log('repair data: ',response.data);
               setRepair(
@@ -138,7 +138,7 @@ function RepairTable() {
     const [promotions, setPromotions] = useState([]);
     useEffect(() => {
         axios
-            .get('http://localhost:3456/getPromotions')
+            .get('http://garage.thammadalok.com/api/getPromotions')
             .then((response) => {
               console.log(response.data);
               setPromotions(
@@ -174,7 +174,7 @@ function RepairTable() {
         console.log('data', data);
         console.log('data.repair_id', data.repair_id);
         axios
-            .put(`http://localhost:3456/updateRepairData/${selectedRow.repair_id}`, data)
+            .put(`http://garage.thammadalok.com/api/updateRepairData/${selectedRow.repair_id}`, data)
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');

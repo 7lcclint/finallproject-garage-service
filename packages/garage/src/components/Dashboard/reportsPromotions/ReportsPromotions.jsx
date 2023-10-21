@@ -28,7 +28,7 @@ function ReportsPromotions() {
             console.log('formattedStartDate',formattedStartDate)
             console.log('formattedEndDate',formattedEndDate)
 
-            fetch(`http://localhost:3456/promotionReportsByStartEnd?start_date=${formattedStartDate}&end_date=${formattedEndDate}`)
+            fetch(`http://garage.thammadalok.com/api/promotionReportsByStartEnd?start_date=${formattedStartDate}&end_date=${formattedEndDate}`)
                 .then(response => response.json())
                 .then(data => {
                     const reportDataWithIds = data.map((row, index) => ({

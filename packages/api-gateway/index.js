@@ -6,10 +6,10 @@ const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const salt = 10;
 const dayjs = require('dayjs');
-const router = express.Router();
 const app = express();
 app.use(express.json());
-app.use('/', router);
+const crypto = require("crypto");
+const secretKey = crypto.randomBytes(32).toString("hex");
 
 app.use(cors({
   origin: ["http://localhost:5173", "https://garages-pro.netlify.app"],
@@ -28,37 +28,16 @@ const db = mysql.createConnection({
   port: 3306
 });
 
-app.post('/register', function (req, res) {
-  const sql = "INSERT INTO garages.user (`first_name`, `last_name`, `email`, `password`, `user_type`) VALUES (?)";
-  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
-    if (err) return res.json({Error: "Error hashing password"});
-    const VALUES = [
-      req.body.firstname,
-      req.body.lastname,
-      req.body.email,
-      hash,
-      1
-    ]
-    db.query(sql, [VALUES], (err, result) => {
-      if (err) {
-        /* console.log(err) */
-        return res.json({Error: "Error registering user"});
-      }
-      res.json({Status: "Successfully"});
-    })
-  })
-})
-
 const verify = (req, res, next) => {
   const token = req.cookies.token;
-  if(!token){
-    return res.json({Error: "not authenticated."});
-  }else{
-    jwt.verify(token, "jwt-secret-key", (err, decoded) => {
-      if(err){
+  if (!token) {
+    return res.json({ Error: "not authenticated." });
+  } else {
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
         console.log(err);
-        return res.json({Error: "Token is not valid"});
-      }else{
+        return res.json({ Error: "Token is not valid" });
+      } else {
         req.user_id = decoded.user_id;
         req.firstname = decoded.firstname;
         req.lastname = decoded.lastname;
@@ -66,16 +45,16 @@ const verify = (req, res, next) => {
         req.user_type = decoded.user_type;
         next();
       }
-    })
+    });
   }
-}
+};
 
-app.get('/', verify, function (req, res) {
+app.get('/getUserDataByEmail', verify, function (req, res) {
   const sql = "SELECT * FROM garages.user WHERE email = ?";
   db.query(sql, [req.email], (err, data) => {
     if (err) return res.json({ Error: "Error retrieving phone" });
     if (data.length > 0) {
-      return res.json({
+      const userData = {
         Status: 'Successfully', 
         firstname: req.firstname,
         lastname: req.lastname,
@@ -89,7 +68,8 @@ app.get('/', verify, function (req, res) {
         address_subdistrict: data[0].address_subdistrict,
         address_zipcode: data[0].address_zipcode,
         user_type: data[0].user_type
-      });
+      };
+      return res.status(200).json(userData);
     } else {
       return res.json({ Error: "Phone not found" });
     }
@@ -107,11 +87,10 @@ app.post('/login', function (req, res) {
       bcrypt.compare(req.body.password.toString(), data[0].password, (err, result) => {
         if (err) return res.json({Error: "Passwords compare error"});
         if(result){
-          console.log('login',result);
           const firstname = data[0].first_name;
           const lastname = data[0].last_name;
           const email = data[0].email;
-          const token = jwt.sign({ firstname, lastname, email, user_id, user_type }, "jwt-secret-key", { expiresIn: '1d' });
+          const token = jwt.sign({ firstname, lastname, email, user_id, user_type }, secretKey, { expiresIn: '1d' });
           res.cookie("token", token);
           return res.json({Status: "Successfully", user_type });
         }else{
@@ -123,6 +102,26 @@ app.post('/login', function (req, res) {
     }
   });
 });
+
+app.post('/register', function (req, res) {
+  const sql = "INSERT INTO garages.user (`first_name`, `last_name`, `email`, `password`, `user_type`) VALUES (?)";
+  bcrypt.hash(req.body.password.toString(), salt, (err, hash) => {
+    if (err) return res.json({Error: "Error hashing password"});
+    const VALUES = [
+      req.body.firstname,
+      req.body.lastname,
+      req.body.email,
+      hash,
+      1
+    ]
+    db.query(sql, [VALUES], (err, result) => {
+      if (err) {
+        return res.json({Error: "Error registering user"});
+      }
+      res.json({Status: "Successfully"});
+    })
+  })
+})
 
 app.get('/logout', (req, res) => {
   res.clearCookie("token");
@@ -214,10 +213,6 @@ app.put('/update-user-data', verify, (req, res) => {
     zipcode,
     user_id,
   ];
-
- // console.log('SQL Query:', sql);
- // console.log('Values:', values);
- // console.log(values);
 
   db.query(sql, values, (err, result) => {
     if (err) {
@@ -339,23 +334,6 @@ app.get('/reservationsByStatusAccept', (req, res) => {
   });
 });
 
-app.get('/getPromotions', (req, res) => {
-
-  db.query(`SELECT promotion_id, promotion_name, promotion_detail, 
-            promotion_code, money, percent, 
-            DATE_FORMAT(start_date, '%d-%m-%Y') AS start_date, 
-            DATE_FORMAT(end_date, '%d-%m-%Y') AS end_date, 
-            promotion_status 
-          FROM promotion`, (err, data) => {
-    if (err) {
-      console.error('Error executing the stored procedure:', err);
-      return res.status(500).json({ error: 'Error calling the stored procedure' });
-    }
-    //console.log('Stored procedure results:', data);
-    res.status(200).json(data); 
-  });
-});
-
 app.post('/insertPromotion', (req, res) => {
   const {
       promotion_name,
@@ -402,7 +380,6 @@ app.put('/update-promotion/:promotionId', (req, res) => {
       console.error('Error updating promotion status:', err);
       res.status(500).send('Error updating promotion status');
     } else {
-      //console.log('Promotion status updated successfully');
       res.status(200).send('Promotion status updated successfully');
     }
   });
@@ -490,6 +467,22 @@ app.get('/fullReportsByStartEnd', (req, res) => {
   });
 });
 
+app.get('/getPromotions', (req, res) => {
+
+  db.query(`SELECT promotion_id, promotion_name, promotion_detail, 
+            promotion_code, money, percent, 
+            DATE_FORMAT(start_date, '%d-%m-%Y') AS start_date, 
+            DATE_FORMAT(end_date, '%d-%m-%Y') AS end_date, 
+            promotion_status 
+          FROM promotion`, (err, data) => {
+    if (err) {
+      console.error('Error executing the stored procedure:', err);
+      return res.status(500).json({ error: 'Error calling the stored procedure' });
+    }
+    //console.log('Stored procedure results:', data);
+    res.status(200).json(data); 
+  });
+});
 
 db.connect((err) => {
   if (err) {

@@ -34,7 +34,7 @@ function Calendar() {
 
     /* useEffect(() => {
         // Fetch reservations from the server when the component mounts
-        axios.get('http://localhost:3456/reservations') // Adjust the URL to match your server route
+        axios.get('http://garage.thammadalok.com/api/reservations') // Adjust the URL to match your server route
           .then((response) => {
             setReservations(response.data);
             setReservations(
@@ -55,7 +55,7 @@ function Calendar() {
 
     const reloadReservations = () => {
         axios
-            .get('http://localhost:3456/reservations') // Adjust the URL to match your server route
+            .get('http://garage.thammadalok.com/api/reservations') // Adjust the URL to match your server route
             .then((response) => {
                 setReservations(
                     response.data.map((reservation, index) => ({
@@ -127,7 +127,7 @@ function Calendar() {
     
             // Send the data to the server via an API call
             axios
-                .post('http://localhost:3456/bookqueue', data)
+                .post('http://garage.thammadalok.com/api/bookqueue', data)
                 .then((response) => {
                     console.log('Data inserted successfully:', response.data);
                     alert('Data inserted successfully');
