@@ -18,7 +18,7 @@ import Promotions from './components/Dashboard/promotionsTable/Promotions.jsx';
 import Reports from './components/Dashboard/reports/Reports.jsx';
 import ReportsPromotions from './components/Dashboard/reportsPromotions/ReportsPromotions.jsx';
 import ReportsRevenue from './components/Dashboard/reportsRevenue/ReportsRevenue.jsx';
-import RepairHistory from './components/Dashboard/repairHistory/repairHistory';
+import RepairHistory from './components/Dashboard/repairHistory/RepairHistory';
 
 function App() {
 
