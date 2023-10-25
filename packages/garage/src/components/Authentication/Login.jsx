@@ -18,14 +18,13 @@ function Login() {
         });
     };
 
-    const navigateTo = useNavigate();
     axios.defaults.withCredentials = true;
       const handleSubmit = (event) => {
         event.preventDefault();
-        axios.post('http://localhost:3456/login', values)
+        axios.post('http://thammadalok.com/apii/login', values)
         .then(response => {
           console.log(response.data);
-          if (response.data.Status === "Successfully"){
+          /* if (response.data.Status === "Successfully"){
             window.localStorage.setItem('isLoggedIn', true);
             window.localStorage.setItem('userType',response.data.user_type);
             console.log("Before navigation");
@@ -34,7 +33,8 @@ function Login() {
             console.log("After navigation");
           }else{
             alert("Error: " + (response.data.Error || 'Unknown Error'));
-          }
+          } */
+          alert("Successs")
         })
         .catch(error => {
           console.log('Error:', error);
