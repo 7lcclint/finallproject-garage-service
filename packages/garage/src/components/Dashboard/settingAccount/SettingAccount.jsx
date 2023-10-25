@@ -9,24 +9,18 @@ import noavatar from '../../../../public/noavatar.png';
 
 const SettingAccount = () => {
 
-    const [userData, setUserData] = useState({
-        user_id: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        street: '',
-        province: '',
-        district: '',
-        subdistrict: '',
-        zipcode: '',
+    const [userData, setUserData] = useState({});
+    const [edit, setEdit] = useState(false);
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
     });
 
     axios.defaults.withCredentials = true;
     useEffect(() => {
-        axios.get('http://garage.thammadalok.com/api/getUserDataByEmail')
+        axios.get('http://localhost:3456/getUserDataByEmail')
           .then(response => {
-            console.log(response);
             if (response.data.Status === "Successfully") {
               setUserData({
                 user_id: response.data.user_id,
@@ -39,7 +33,8 @@ const SettingAccount = () => {
                 district: response.data.address_district,
                 subdistrict: response.data.address_subdistrict,
                 zipcode: response.data.address_zipcode,
-              });
+                profile_picture: response.data.profile_picture
+              })
             } else {
               console.log(response.data.Error);
             }
@@ -50,10 +45,18 @@ const SettingAccount = () => {
     const [ enable, setEnable ] = useState(true);
     const handleEdit = () =>{
         setEnable(!enable);
+        setEdit(false);
     }
 
+    const [profilePicture, setProfilePicture] = useState(null);
+
+    const handleImageUpload = (event) => {
+        const file = event.target.files[0];
+        setProfilePicture(file);
+    };
+
     const handleSave = () => {
-        axios.put('http://garage.thammadalok.com/api/update-user-data', userData)
+        axios.put('http://localhost:3456/update-user-data', userData)
         .then(response => {
             if (response.data && response.data.message) {
             console.log('User data updated successfully');
@@ -64,9 +67,61 @@ const SettingAccount = () => {
             }
         })
         .catch(error => {
+            setEnable(!enable);
             console.error('Error updating user data:', error);
         });
+
+        if (profilePicture) {
+            const formData = new FormData();
+            formData.append('image', profilePicture);
+      
+            axios.put(`http://localhost:3456/update-profile-picture/${userData.user_id}`, formData, {
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
+              .then((response) => {
+                if (response.data && response.data.message) {
+                  console.log('Image uploaded successfully');
+                  alert('Image uploaded successfully');
+                  location.reload();
+                } else {
+                  console.error('Error uploading image:', response.data);
+                }
+              })
+              .catch((error) => {
+                console.error('Error uploading image:', error);
+              });
+          } else {
+            console.error('No image selected');
+          }
     };
+
+    
+    const handleEditPassword = () => {
+        setEdit(!edit);
+        console.log('Edit password', edit);
+        const passwordUpdateData = {
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+        };
+
+        axios.put(`http://localhost:3456/change-password/${userData.user_id}`, passwordUpdateData)
+        .then(response => {
+            if (response.data && response.data.message) {
+            console.log('Edit Password successfully');
+            alert('Password was updated');
+            setEnable(!enable);
+            } else {
+            console.error('Error updating user data:', response.data);
+            }
+        })
+        .catch(error => {
+            setEnable(!enable);
+            console.error('Error updating user data:', error);
+        });
+    }
 
     return (
         <>
@@ -75,118 +130,163 @@ const SettingAccount = () => {
             <div className="view">
                 <div className="info">
                     <div className="topInfo">
-                        <img src={noavatar} alt="" />
+                    <img src={userData.profile_picture ? `/src/assets/profilePicture/${userData.profile_picture}` : noavatar } alt="Profile" />
+                        {!enable && !edit ?
+                            <input type="file" accept="image/*" onChange={handleImageUpload} />
+                        : ''}
+                        <button onClick={handleEditPassword} className={'edit-button-grey'} >
+                            {!edit ? 'เปลี่ยนรหัสผ่าน' : 'บันทึกรหัสผ่าน'}
+                        </button>
                         <button onClick={enable ? handleEdit : handleSave} className={enable ? 'edit-button-red' : 'edit-button-blue'}>
                             {enable ? 'แก้ไขข้อมูล' : 'บันทึกข้อมูล'}
                         </button>
                     </div>
                         <div className="details">
-                            <Form>
-                                <Row>
-                                    <Col>
-                                    <div>ชื่อ</div>
-                                    <Form.Control
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={userData.firstName}
-                                        placeholder={userData.firstName} 
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
-                                    />
-                                    </Col>
-                                    <Col>
-                                    <div>นามสกุล</div>
-                                    <Form.Control
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={userData.lastName}
-                                        placeholder={userData.lastName} 
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
-                                    />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <div>เบอร์โทรศัพท์</div>
+                            {edit ? (
+                                <Form>
+                                    <Row>
+                                        <Col>
+                                        <div>กรุณาใส่รหัสผ่านเดิม</div>
+                                        <Form.Control
+                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                            value={passwordData.currentPassword || ''}
+                                            placeholder={'old password'} 
+                                            disabled={!edit}
+                                            onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
+                                        />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <div>รหัสผ่านใหม่</div>
+                                            <Form.Control 
+                                                style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                                value={passwordData.newPassword || ''}
+                                                placeholder={'new password'} 
+                                                disabled={!edit}
+                                                onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <div>ยืนยันรหัสผ่าน</div>
+                                            <Form.Control 
+                                                style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                                value={passwordData.confirmPassword || ''}
+                                                placeholder={'confirm new password'} 
+                                                onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                                disabled={!edit}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </Form>
+                            ) : (
+                                <Form>
+                                    <Row>
+                                        <Col>
+                                        <div>ชื่อ</div>
+                                        <Form.Control
+                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                            value={userData.firstName || ''}
+                                            placeholder={userData.firstName} 
+                                            disabled={enable}
+                                            onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
+                                        />
+                                        </Col>
+                                        <Col>
+                                        <div>นามสกุล</div>
+                                        <Form.Control
+                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                            value={userData.lastName || ''}
+                                            placeholder={userData.lastName} 
+                                            disabled={enable}
+                                            onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
+                                        />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <div>เบอร์โทรศัพท์</div>
+                                            <Form.Control 
+                                                style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                                value={userData.phone || ''}
+                                                placeholder={userData.phone} 
+                                                disabled={enable}
+                                                onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                                            />
+                                        </Col>
+                                        <Col>
+                                            <div>อีเมล</div>
+                                            <Form.Control 
+                                                style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                                value={userData.email || ''}
+                                                placeholder={userData.email} 
+                                                disabled
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <div style={{margin: '10px 0'}}>
+                                        <h2>ที่อยู่</h2>
+                                    </div>
+                                    <Row>
+                                        <Col>
+                                        <div>ตำบล</div>
                                         <Form.Control 
                                             style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={userData.phone}
-                                            placeholder={userData.phone} 
+                                            value={userData.subdistrict}
+                                            placeholder={userData.subdistrict}
                                             disabled={enable}
-                                            onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                                            onChange={(e) => setUserData({ ...userData, subdistrict: e.target.value })}
                                         />
-                                    </Col>
-                                    <Col>
-                                        <div>อีเมล</div>
-                                        <Form.Control 
+                                        </Col>
+                                        <Col>
+                                        <div>อำเภอ</div>
+                                        <Form.Control
+                                            value={userData.district}
                                             style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={userData.email}
-                                            placeholder={userData.email} 
-                                            disabled
-                                        />
-                                    </Col>
-                                </Row>
-                                <div style={{margin: '10px 0'}}>
-                                    <h2>ที่อยู่</h2>
-                                </div>
-                                <Row>
-                                    <Col>
-                                    <div>ตำบล</div>
-                                    <Form.Control 
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={userData.subdistrict}
-                                        placeholder={userData.subdistrict}
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, subdistrict: e.target.value })}
-                                    />
-                                    </Col>
-                                    <Col>
-                                    <div>อำเภอ</div>
-                                    <Form.Control
-                                        value={userData.district}
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        placeholder={userData.district} 
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, district: e.target.value })}
-                                    />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                    <div>จังหวัด</div>
-                                    <Form.Control
-                                        value={userData.province}
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        placeholder={userData.province} 
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, province: e.target.value })}
-                                    />
-                                    </Col>
-                                    <Col>
-                                    <div>รหัสไปรษณีย์</div>
-                                    <Form.Control
-                                        style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                        value={userData.zipcode}
-                                        placeholder={userData.zipcode} 
-                                        disabled={enable}
-                                        onChange={(e) => setUserData({ ...userData, zipcode: e.target.value })}
-                                    />
-                                    </Col>
-                                </Row>
-                                <Row style={{ height: '3rem' }}>
-                                    <Col >
-                                    <div>รายละเอียดที่อยู่</div>
-                                    <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
-                                        <Form.Control as="textarea" rows={3} 
-                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
-                                            value={userData.street}
-                                            placeholder={userData.street} 
+                                            placeholder={userData.district} 
                                             disabled={enable}
-                                            onChange={(e) => setUserData({ ...userData, street: e.target.value })}
+                                            onChange={(e) => setUserData({ ...userData, district: e.target.value })}
                                         />
-                                    </Form.Group>
-                                    </Col>
-                                </Row>
-                            </Form>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                        <div>จังหวัด</div>
+                                        <Form.Control
+                                            value={userData.province}
+                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                            placeholder={userData.province} 
+                                            disabled={enable}
+                                            onChange={(e) => setUserData({ ...userData, province: e.target.value })}
+                                        />
+                                        </Col>
+                                        <Col>
+                                        <div>รหัสไปรษณีย์</div>
+                                        <Form.Control
+                                            style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                            value={userData.zipcode}
+                                            placeholder={userData.zipcode} 
+                                            disabled={enable}
+                                            onChange={(e) => setUserData({ ...userData, zipcode: e.target.value })}
+                                        />
+                                        </Col>
+                                    </Row>
+                                    <Row style={{ height: '3rem' }}>
+                                        <Col >
+                                        <div>รายละเอียดที่อยู่</div>
+                                        <Form.Group className="mb-3" controlId="exampleForm.ControlTextarea1">
+                                            <Form.Control as="textarea" rows={3} 
+                                                style={{ backgroundColor: '#2a3447', color: 'white'}}
+                                                value={userData.street}
+                                                placeholder={userData.street} 
+                                                disabled={enable}
+                                                onChange={(e) => setUserData({ ...userData, street: e.target.value })}
+                                            />
+                                        </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </Form>
+                            )}
                         </div>
                     </div>
                     <hr />

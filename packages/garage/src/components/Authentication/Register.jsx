@@ -45,7 +45,7 @@ function Register() {
       return;
     }
 
-    axios.post('http://http://localhost:3456//register', values)
+    axios.post('http://localhost:3456/register', values)
     .then(response => {
       console.log(response)
       if (response.data.Status === "Successfully"){

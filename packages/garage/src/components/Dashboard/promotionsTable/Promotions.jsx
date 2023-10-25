@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import './promotions.css'
 import 'dayjs/locale/th';
 import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -23,7 +23,7 @@ function Promotions() {
     const [promotions, setPromotions] = useState([]);
     const reloadReservations = () => {
         axios
-            .get('http://garage.thammadalok.com/api/getPromotions')
+            .get('http://localhost:3456/getPromotions')
             .then((response) => {
               console.log(response.data);
               setPromotions(
@@ -43,10 +43,23 @@ function Promotions() {
             })
             .catch((error) => {
                 console.error('Error fetching reservations:', error);
-            });
+        });
     };
 
+    const [userType, setUserType] = useState();
     useEffect(() => {
+        axios.get('http://localhost:3456/getUserDataByEmail')
+            .then(response => {
+              console.log(response)
+              if (response.data.Status === "Successfully"){
+                setUserType(response.data.user_type);
+                console.log(userType);
+                console.log('Type :',response.data.user_type);
+              }else{
+                console.log(response.data.Error)
+              }
+            })
+            .then(error => console.log(error));
         reloadReservations();
     }, []);
 
@@ -141,7 +154,7 @@ function Promotions() {
               end_date: end,
             };
             axios
-              .post('http://garage.thammadalok.com/api/insertPromotion', data)
+              .post('http://localhost:3456/insertPromotion', data)
               .then((response) => {
                 console.log('Data inserted successfully:', response.data);
                 alert('Data inserted successfully');
@@ -171,7 +184,7 @@ function Promotions() {
 
             console.log(data);
             axios
-              .put(`http://garage.thammadalok.com/api/update-promotion/${data.promotionId}`, {
+              .put(`http://localhost:3456/update-promotion/${data.promotionId}`, {
                 promotionStatus: data.promotion_status,
               })
               .then((response) => {
@@ -218,238 +231,280 @@ function Promotions() {
       
     return (
         <>
-            <div className='row'>
-                <div className="col">
-                    <h1 className='mt-4'>รายการโปรโมชั่น</h1>
+            {userType === 1 ? (
+                <div>
+                    <div className='row'>
+                        <div className="col">
+                            <h1 className='mt-4'>รายการโปรโมชั่น</h1>
+                        </div>
+                    </div>
+                    <div className='data-container'>
+                    <DataGrid
+                        className='data-gird'
+                        rows={promotions}
+                        columns={columns}
+                        disableColumnFilter
+                        disableColumnSelector
+                        disableDensitySelector
+                        slots={{ toolbar: GridToolbar }}
+                        slotProps={{
+                            toolbar: {
+                            showQuickFilter: true,
+                            printOptions: { disableToolbarButton: true },
+                            csvOptions: { disableToolbarButton: true },
+                            },
+                        }}
+                        pageSizeOptions={[5, 10]}
+                    />
                 </div>
-                <div className="col">
-                    <div className="button-container">
-                    <Button onClick={()=>{handleShow(), setAdd(true)}} className='queue-btn queue-btn-light'>
-                        เพิ่มโปรโมชั่น
-                    </Button>
-                    </div>
                 </div>
-            </div>
-            <div className='data-container'>
-                <DataGrid
-                    className='data-gird'
-                    rows={promotions}
-                    columns={columns}
-                    onRowClick={handleRowClick}
-                    disableRowSelectionOnClick
-                    initialState={{
-                        pagination: {
-                            paginationModel: { page: 0, pageSize: 5 },
-                        },
-                    }}
-                    pageSizeOptions={[5, 10]}
-                />
-            </div>
-            <Modal
-                show={show}
-                animation={true}
-                size="lg"
-                aria-labelledby="contained-modal-title-vcenter"
-                centered
-            >
-                <Modal.Header closeButton onClick={handleShow}>
-                    <Modal.Title id="contained-modal-title-vcenter">
-                        {add ? 'เพิ่มโปรโมชั่น' : 'จัดการโปรโมชั่น'}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {add ? (
-                        <Form>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>ชื่อโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="กรุณาระบุชื่อโปรโมชั่น"
-                                    name="promotion_name"
-                                    value={formData.promotion_name}
-                                    onChange={handleFormChange}
-                                />
-                            </div>
-                            <div className="col">
-                            <Form.Label>รหัสโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="กรุณาระบุรหัสโปรโมชั่น"
-                                    name="promotion_code"
-                                    value={formData.promotion_code}
-                                    onChange={handleFormChange}
-                                />
+            ) : (
+                <div>
+                    <div className='row'>
+                        <div className="col">
+                            <h1 className='mt-4'>รายการโปรโมชั่น</h1>
+                        </div>
+                        <div className="col">
+                            <div className="button-container">
+                            <Button onClick={()=>{handleShow(), setAdd(true)}} className='queue-btn queue-btn-light'>
+                                เพิ่มโปรโมชั่น
+                            </Button>
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>ส่วนลดเปอร์เซ็นต์</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="กรุณาระบุส่วนลดเปอร์เซ็นต์"
-                                    name="percent"
-                                    value={formData.percent}
-                                    onChange={handleFormChange}
-                                    min={1}
-                                    max={100}
-                                />
-                            </div>
-                            <div className="col">
-                            <Form.Label>ส่วนลดจำนวนเงิน</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="กรุณาระบุส่วนลดจำนวนเงิน"
-                                    name="money"
-                                    value={formData.money}
-                                    onChange={handleFormChange}
-                                />
-                            </div>
-                            <strong>เลือกระหว่างส่วนลดเปอร์เซ็นต์หรือจำนวนเงิน</strong>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                            <Form.Label>รายละเอียดโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    as="textarea"
-                                    placeholder="กรุณาระบุรายละเอียดโปรโมชั่น"
-                                    name="promotion_detail"
-                                    value={formData.promotion_detail}
-                                    onChange={handleFormChange}
-                                />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
-                                <DemoContainer components={['DatePicker']}>
-                                    <DatePicker  
-                                        minDate={dayjs()}
-                                        label='วันที่เริ่มใช้'
-                                        value={startDate}
-                                        onChange={handleStartDateChange}
-                                        onClick={handleStartDateChange}
-                                        format="YYYY-M-D"
-                                    />
-                                    <DatePicker  
-                                        minDate={startDate}
-                                        value={endDate}
-                                        onChange={handleEndDateChange}
-                                        onClick={handleEndDateChange}
-                                        label='วันที่สิ้นสุด'
-                                        format="YYYY-M-D"
-                                    />
-                                </DemoContainer>
-                            </LocalizationProvider>
-                        </div>
-                            
-                            <strong>โปรดตรวจสอบข้อมูลก่อนกดยืนยัน</strong>
-                    </Form>
-                    ) : (
-                        <Form>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>ชื่อโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="กรุณาระบุชื่อโปรโมชั่น"
-                                    name="promotion_name"
-                                    disabled
-                                    value={selectedRow?.promotion_name || ''}
-                                />
-                            </div>
-                            <div className="col">
-                            <Form.Label>รหัสโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="กรุณาระบุรหัสโปรโมชั่น"
-                                    name="promotion_code"
-                                    disabled
-                                    value={selectedRow?.promotion_code || ''}
-                                />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>ส่วนลดเปอร์เซ็นต์</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="กรุณาระบุส่วนลดเปอร์เซ็นต์"
-                                    name="percent"
-                                    disabled
-                                    value={selectedRow?.percent || ''}
-                                    min={1}
-                                    max={100}
-                                />
-                            </div>
-                            <div className="col">
-                            <Form.Label>ส่วนลดจำนวนเงิน</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="กรุณาระบุส่วนลดจำนวนเงิน"
-                                    name="money"
-                                    disabled
-                                    value={selectedRow?.money || ''}
-                                />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                            <Form.Label>รายละเอียดโปรโมชั่น</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    as="textarea"
-                                    disabled
-                                    placeholder="กรุณาระบุรายละเอียดโปรโมชั่น"
-                                    name="promotion_detail"
-                                    value={selectedRow?.promotion_detail || ''}
-                                    onChange={handleFormChange}
-                                />
-                            </div>
-                        </div>
-                        <div className="row">
-                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
-                                <DemoContainer components={['DatePicker']}>
-                                    <DatePicker
-                                        label={selectedRow?.start_date || ''}
-                                        disabled
-                                    />
-                                    <DatePicker  
-                                        label={selectedRow?.end_date || ''}
-                                        disabled
-                                    />
-                                </DemoContainer>
-                            </LocalizationProvider>
-                        </div>
-                        <div className="row">
-                            <div className="col">
-                                <Form.Label>สถานะปัจจุบัน{selectedRow?.promotion_status === '1'  ? ' : ใช้งาน' :
-                                                     selectedRow?.promotion_status === '0'  ? ' : ยกเลิก' : ''}</Form.Label>
-                                <Form.Select 
-                                    aria-label="Default select example"
-                                    name="promotion_status"
-                                    value={formData.promotion_status}
-                                    onChange={handleFormChange}
-                                >
-                                        <option>เลือกอัปเดทสถานะ</option>
-                                        <option value="0">ยกเลิก</option>
-                                        <option value="1">ใช้งาน</option>
-                                </Form.Select>
-                            </div>
-                        </div>
-                        <strong>โปรดตรวจสอบข้อมูลก่อนกดยืนยัน</strong>
-                    </Form>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <div className='btn-save' onClick={handleSubmit}>
-                        บันทึกข้อมูล
                     </div>
-                    <div className='btn-cancel' onClick={handleShow}>
-                        ยกเลิก
-                    </div>
-                </Modal.Footer>
-            </Modal>
+                    <div className='data-container'>
+                    <DataGrid
+                        className='data-gird'
+                        rows={promotions}
+                        columns={columns}
+                        onRowClick={handleRowClick}
+                        disableRowSelectionOnClick
+                        disableColumnFilter
+                        disableColumnSelector
+                        disableDensitySelector
+                        slots={{ toolbar: GridToolbar }}
+                        slotProps={{
+                            toolbar: {
+                            showQuickFilter: true,
+                            printOptions: { disableToolbarButton: true },
+                            csvOptions: { disableToolbarButton: true },
+                            },
+                        }}
+                        initialState={{
+                            pagination: {
+                                paginationModel: { page: 0, pageSize: 5 },
+                            },
+                        }}
+                        pageSizeOptions={[5, 10]}
+                    />
+                </div>
+                <Modal
+                    show={show}
+                    animation={true}
+                    size="lg"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                >
+                    <Modal.Header closeButton onClick={handleShow}>
+                        <Modal.Title id="contained-modal-title-vcenter">
+                            {add ? 'เพิ่มโปรโมชั่น' : 'จัดการโปรโมชั่น'}
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {add ? (
+                            <Form>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>ชื่อโปรโมชั่น</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="กรุณาระบุชื่อโปรโมชั่น"
+                                        name="promotion_name"
+                                        value={formData.promotion_name}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                                <div className="col">
+                                <Form.Label>รหัสโปรโมชั่น</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="กรุณาระบุรหัสโปรโมชั่น"
+                                        name="promotion_code"
+                                        value={formData.promotion_code}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                    <Form.Label>ส่วนลดเปอร์เซ็นต์</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="กรุณาระบุส่วนลดเปอร์เซ็นต์"
+                                        name="percent"
+                                        value={formData.percent}
+                                        onChange={handleFormChange}
+                                        min={1}
+                                        max={100}
+                                    />
+                                </div>
+                                <div className="col">
+                                <Form.Label>ส่วนลดจำนวนเงิน</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="กรุณาระบุส่วนลดจำนวนเงิน"
+                                        name="money"
+                                        value={formData.money}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                                <strong>เลือกระหว่างส่วนลดเปอร์เซ็นต์หรือจำนวนเงิน</strong>
+                            </div>
+                            <div className="row">
+                                <div className="col">
+                                <Form.Label>รายละเอียดโปรโมชั่น</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        as="textarea"
+                                        placeholder="กรุณาระบุรายละเอียดโปรโมชั่น"
+                                        name="promotion_detail"
+                                        value={formData.promotion_detail}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
+                                    <DemoContainer components={['DatePicker']}>
+                                        <DatePicker  
+                                            minDate={dayjs()}
+                                            label='วันที่เริ่มใช้'
+                                            value={startDate}
+                                            onChange={handleStartDateChange}
+                                            onClick={handleStartDateChange}
+                                            format="YYYY-M-D"
+                                        />
+                                        <DatePicker  
+                                            minDate={startDate}
+                                            value={endDate}
+                                            onChange={handleEndDateChange}
+                                            onClick={handleEndDateChange}
+                                            label='วันที่สิ้นสุด'
+                                            format="YYYY-M-D"
+                                        />
+                                    </DemoContainer>
+                                </LocalizationProvider>
+                            </div>
+                                
+                                <strong>โปรดตรวจสอบข้อมูลก่อนกดยืนยัน</strong>
+                        </Form>
+                        ) : (
+                            <Form>
+                                <div className="row">
+                                    <div className="col">
+                                        <Form.Label>ชื่อโปรโมชั่น</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="กรุณาระบุชื่อโปรโมชั่น"
+                                            name="promotion_name"
+                                            disabled
+                                            value={selectedRow?.promotion_name || ''}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                    <Form.Label>รหัสโปรโมชั่น</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="กรุณาระบุรหัสโปรโมชั่น"
+                                            name="promotion_code"
+                                            disabled
+                                            value={selectedRow?.promotion_code || ''}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <Form.Label>ส่วนลดเปอร์เซ็นต์</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="กรุณาระบุส่วนลดเปอร์เซ็นต์"
+                                            name="percent"
+                                            disabled
+                                            value={selectedRow?.percent || ''}
+                                            min={1}
+                                            max={100}
+                                        />
+                                    </div>
+                                    <div className="col">
+                                    <Form.Label>ส่วนลดจำนวนเงิน</Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="กรุณาระบุส่วนลดจำนวนเงิน"
+                                            name="money"
+                                            disabled
+                                            value={selectedRow?.money || ''}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                    <Form.Label>รายละเอียดโปรโมชั่น</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            as="textarea"
+                                            disabled
+                                            placeholder="กรุณาระบุรายละเอียดโปรโมชั่น"
+                                            name="promotion_detail"
+                                            value={selectedRow?.promotion_detail || ''}
+                                            onChange={handleFormChange}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="th">
+                                        <DemoContainer components={['DatePicker']}>
+                                            <DatePicker
+                                                label={selectedRow?.start_date || ''}
+                                                disabled
+                                            />
+                                            <DatePicker  
+                                                label={selectedRow?.end_date || ''}
+                                                disabled
+                                            />
+                                        </DemoContainer>
+                                    </LocalizationProvider>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <Form.Label>สถานะปัจจุบัน{selectedRow?.promotion_status === '1'  ? ' : ใช้งาน' :
+                                                            selectedRow?.promotion_status === '0'  ? ' : ยกเลิก' : ''}</Form.Label>
+                                        <Form.Select 
+                                            aria-label="Default select example"
+                                            name="promotion_status"
+                                            value={formData.promotion_status}
+                                            onChange={handleFormChange}
+                                        >
+                                                <option>เลือกอัปเดทสถานะ</option>
+                                                <option value="0">ยกเลิก</option>
+                                                <option value="1">ใช้งาน</option>
+                                        </Form.Select>
+                                    </div>
+                                </div>
+                                <strong>โปรดตรวจสอบข้อมูลก่อนกดยืนยัน</strong>
+                            </Form>
+                            )}
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <div className='btn-save' onClick={handleSubmit}>
+                                บันทึกข้อมูล
+                            </div>
+                            <div className='btn-cancel' onClick={handleShow}>
+                                ยกเลิก
+                            </div>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+            )}
         </>
     )
 }

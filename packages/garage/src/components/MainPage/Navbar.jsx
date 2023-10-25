@@ -26,10 +26,9 @@ function Navbar() {
   useEffect(() => {
     axios.get('http://localhost:3456/getUserDataByEmail')
     .then(response => {
-      console.log(response)
       if (response.data.Status === "Successfully"){
         setAuth(true);
-        window.localStorage.setItem('isLoggedIn', true);
+        window.localStorage.setItem('isLoggedIn',true);
         setFirstname(response.data.firstname);
         setLastname(response.data.lastname);
         setUserType(response.data.user_type);
@@ -47,8 +46,8 @@ function Navbar() {
     axios.defaults.withCredentials = true;
     axios.get('http://localhost:3456/logout')
     .then(response =>{
-      window.localStorage.removeItem('isLoggedIn');
       location.reload(true);
+      window.localStorage.setItem('isLoggedIn',false);
       console.log(response);
     }).catch(error => console.log(error));
   }
@@ -69,23 +68,22 @@ function Navbar() {
         <li>
             <Link className='white-text' to='/about'>เกี่ยวกับเรา</Link>
         </li>
-        <li>
-            <Link className='white-text' to='/contact'>ติดต่อ</Link> 
-        </li>
-        {auth ?(
+        {auth ? (
         <div>
           <li>
             <Link 
-              className='white-text' 
-              to={
-                userType === 1 ? ('/dashboard/setting') :
-                userType === 2 ? ('/dashboard/setting') :
-                userType === 3 ? ('/dashboard/summary') :
+              className='white-text'
+              to={  
+                userType === 1 ? '/dashboard/setting' :
+                userType === 2 ? '/dashboard/setting' :
+                userType === 3 ? '/dashboard/setting' :
                 ('/dashboard')
               }>{firstname} {lastname}</Link>
-            <button 
+            <button
               className='btn-logout btn-logout-light' 
-              onClick={handleLogout} >Logout</button>
+              onClick={handleLogout}>
+                Logout
+            </button>
           </li>
         </div>
         ):(

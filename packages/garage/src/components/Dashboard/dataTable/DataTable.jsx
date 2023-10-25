@@ -35,6 +35,17 @@ const DataTable = (props) => {
         className="dataGrid"
         rows={props.rows}
         columns={[...props.columns, actionColumn]}
+        disableColumnFilter
+        disableColumnSelector
+        disableDensitySelector
+        slots={{ toolbar: GridToolbar }}
+        slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+              printOptions: { disableToolbarButton: true },
+              csvOptions: { disableToolbarButton: true },
+              },
+        }}
         initialState={{
           pagination: {
             pageSize: 10,
@@ -45,7 +56,6 @@ const DataTable = (props) => {
         }}
         pageSize={10}
         checkboxSelection
-        disableColumnFilter
       />
     </div>
   );

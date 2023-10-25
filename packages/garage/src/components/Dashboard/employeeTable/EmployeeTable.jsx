@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import './employeeTable.css'
 import 'dayjs/locale/th';
 import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
 function EmployeeTable() {
 
@@ -20,7 +20,7 @@ function EmployeeTable() {
 
     const reloadReservations = () => {
         axios
-            .get('http://garage.thammadalok.com/api/getCustomers') // Adjust the URL to match your server route
+            .get('http://localhost:3456/getCustomers') // Adjust the URL to match your server route
             .then((response) => {
               console.log(response.data);
                 setEmployees(
@@ -101,7 +101,7 @@ function EmployeeTable() {
             console.log(data);
     
             axios
-                .post('http://http://garage.thammadalok.com/api//register', data)
+                .post('http://http://localhost:3456//register', data)
                 .then((response) => {
                     console.log('Data inserted successfully:', response.data);
                     alert('Data inserted successfully');
@@ -146,6 +146,17 @@ function EmployeeTable() {
                     columns={columns}
                     disableRowSelectionOnClick
                     onRowClick={handleRowClick}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                        showQuickFilter: true,
+                        printOptions: { disableToolbarButton: true },
+                        csvOptions: { disableToolbarButton: true },
+                        },
+                    }}
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },

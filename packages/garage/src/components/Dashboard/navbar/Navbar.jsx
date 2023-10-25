@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import "./navbar.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import noavatar from '../../../../public/noavatar.png';
 
 function Navbar() {
 
   const [firstName, setFirstName ] = useState();
   const [lastName, setLastName ] = useState();
+  const [profileImage, setProfileImage ] = useState();
   const [auth, setAuth] = useState(false);
   axios.defaults.withCredentials = true;
   useEffect(() => {
@@ -18,6 +20,8 @@ function Navbar() {
         window.localStorage.setItem('isLoggedIn', true);
         setFirstName(response.data.firstname);
         setLastName(response.data.lastname);
+        setProfileImage(response.data.profile_picture);
+        console.log(response.data);
       }else{
         setAuth(false);
         console.log(auth)
@@ -35,7 +39,7 @@ function Navbar() {
       <div className="icons">
         <div className="user">
           <img
-            src="https://images.pexels.com/photos/11038549/pexels-photo-11038549.jpeg?auto=compress&cs=tinysrgb&w=1600&lazy=load"
+            src={profileImage ? `/src/assets/profilePicture/${profileImage}` : noavatar }
             alt=""
           />
           <Link className='white-text' to='/dashboard/summary'>{firstName} {lastName}</Link>

@@ -1,8 +1,7 @@
 import Menu from '../Menu/Menu'
-import Footer from '../footer/Footer';
 import Navbar from '../navbar/Navbar'
 import '../style/dashboardGlobal.css'
-import { Outlet} from "react-router-dom";
+import {Outlet} from "react-router-dom";
 
 
 function DashBoard() {
@@ -18,7 +17,6 @@ function DashBoard() {
             <Outlet />
           </div>
         </div>
-        <Footer/>
       </div>
     );
   };

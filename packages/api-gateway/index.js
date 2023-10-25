@@ -9,10 +9,16 @@ const dayjs = require('dayjs');
 const app = express();
 app.use(express.json());
 const crypto = require("crypto");
+const multer = require('multer');
+const path = require('path');
 const secretKey = crypto.randomBytes(32).toString("hex");
-
+console.log('Secret Key',secretKey)
+app.use(express.static(path.join(__dirname, "src")));
 app.use(cors({
-  origin: ["http://localhost:5173", "https://garages-pro.netlify.app"],
+  origin: ["http://localhost:5173",
+          'https://garage-systemservices.netlify.app',
+          'https://garage-finall.web.app',
+          'https://finallproject-garage-service-1.vercel.app'],
   methods: ['POST', 'GET', 'PUT'],
   credentials: true
 }));
@@ -31,6 +37,7 @@ const db = mysql.createConnection({
 const verify = (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
+    console.log(token);
     return res.json({ Error: "not authenticated." });
   } else {
     jwt.verify(token, secretKey, (err, decoded) => {
@@ -92,6 +99,7 @@ app.post('/login', function (req, res) {
           const email = data[0].email;
           const token = jwt.sign({ firstname, lastname, email, user_id, user_type }, secretKey, { expiresIn: '1d' });
           res.cookie("token", token);
+          console.log("user type", user_type);
           return res.json({Status: "Successfully", user_type });
         }else{
           return res.json({Error: "Passwords do not match"});
@@ -130,14 +138,12 @@ app.get('/logout', (req, res) => {
 
 app.get('/reservations', verify, (req, res) => {
   const user_id = req.user_id;
- // console.log('user id: ', user_id)
   const sql = 'SELECT reserve.*, user.* FROM reserve INNER JOIN user ON user.user_id = reserve.user_id WHERE user.user_id = ?';
   db.query(sql, [user_id], (err, data) => {
     if (err) {
       console.error('Error executing the SQL query:', err);
       return res.status(500).json({ error: 'Error retrieving reservations' });
     }
-   // console.log('Query results:', data);
     res.status(200).json(data);
   });
 });
@@ -265,6 +271,31 @@ app.get('/repairData', verify, (req, res) => {
       return res.status(500).json({ error: 'Error retrieving repair data' });
     }
     //console.log('Query results:', data);
+    res.status(200).json(data);
+  });
+});
+
+app.get('/repairData/:user_id', verify, (req, res) => {
+  const user_id = req.params.user_id;
+  const sql = `
+    SELECT
+      repair.repair_id,
+      user.first_name,
+      user.last_name,
+      DATE_FORMAT(repair.repair_date, '%Y-%m-%d') AS repair_date,
+      repair.repair_detail,
+      repair.repair_status
+    FROM
+      user
+    INNER JOIN repair ON user.user_id = repair.user_id
+    WHERE user.user_id = ?;
+  `;
+
+  db.query(sql,user_id, (err, data) => {
+    if (err) {
+      console.error('Error executing the SQL query:', err);
+      return res.status(500).json({ error: 'Error retrieving repair data' });
+    }
     res.status(200).json(data);
   });
 });
@@ -403,7 +434,6 @@ app.get('/fullReports', (req, res) => {
 app.get('/promotionReportsByStartEnd', (req, res) => {
 
   const { start_date, end_date } = req.query;
-  //console.log(start_date, end_date);
   if (!start_date || !end_date) {
     res.status(400).json({ error: 'โปรดระบุวันที่เริ่มต้นและวันที่สิ้นสุด' });
     return;
@@ -426,7 +456,6 @@ app.get('/promotionReportsByStartEnd', (req, res) => {
 app.get('/reportRevenueByStartEnd', (req, res) => {
 
   const { start_date, end_date } = req.query;
-  //console.log(start_date, end_date);
   if (!start_date || !end_date) {
     res.status(400).json({ error: 'โปรดระบุวันที่เริ่มต้นและวันที่สิ้นสุด' });
     return;
@@ -443,6 +472,17 @@ app.get('/reportRevenueByStartEnd', (req, res) => {
         }));
         res.json(formattedResults);
       }
+  });
+});
+
+app.get('/reportRevenueAll', (req, res) => {
+  db.query('CALL reportRevenueAll()', (err, results) => {
+    if (err) {
+      console.error('Error executing the stored procedure: ' + err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    } else {
+      res.json(results[0]);
+    }
   });
 });
 
@@ -467,6 +507,25 @@ app.get('/fullReportsByStartEnd', (req, res) => {
   });
 });
 
+app.get('/reportRevenueByMonth/:year', (req, res) => {
+  const year = req.params.year;
+
+  db.query('CALL reportRevenueByMonth(?)', [year], (err, results) => {
+    if (err) {
+      console.error('Error calling stored procedure:', err);
+      return res.status(500).json({ error: 'Error calling the stored procedure' });
+    }
+
+    const formattedResults = results[0].map(result => ({
+      month: result.month,
+      revenue: result.revenue,
+    }));
+
+    res.status(200).json(formattedResults);
+  });
+});
+
+
 app.get('/getPromotions', (req, res) => {
 
   db.query(`SELECT promotion_id, promotion_name, promotion_detail, 
@@ -479,8 +538,100 @@ app.get('/getPromotions', (req, res) => {
       console.error('Error executing the stored procedure:', err);
       return res.status(500).json({ error: 'Error calling the stored procedure' });
     }
-    //console.log('Stored procedure results:', data);
     res.status(200).json(data); 
+  });
+});
+
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, '../garage/src/assets/profilePicture'),
+  filename: (req, file, cb) => {
+    const fileName = `${Date.now()}-${file.originalname}`;
+    cb(null, fileName);
+  },
+});
+
+const upload = multer({ storage });
+
+app.put('/update-profile-picture/:user_id', verify, upload.single('image'), (req, res) => {
+  const user_id = req.params.user_id;
+  
+  if (req.file) {
+    const imageUrl = req.file.filename;
+
+    const sql = `
+      UPDATE garages.user
+      SET profile_picture = ?
+      WHERE user_id = ?;
+    `;
+
+    db.query(sql, [imageUrl, user_id], (err, result) => {
+      if (err) {
+        console.error('Error updating profile picture:', err);
+        return res.status(500).json({ error: 'Error updating profile picture' });
+      } else if (result.changedRows === 0) {
+        console.error('No rows were updated');
+        return res.status(500).json({ error: 'No rows were updated' });
+      } else {
+        console.log('Profile picture updated successfully');
+        return res.status(200).json({ message: 'Profile picture updated successfully' });
+      }
+    });
+  } else {
+    res.status(400).json({ error: 'Image upload failed' });
+  }
+});
+
+app.put('/change-password/:user_id', verify, (req, res) => {
+  const user_id = req.user_id;
+  const currentPassword = req.body.currentPassword;
+  const newPassword = req.body.newPassword;
+
+  console.log('id:', user_id, 'cuepws:',currentPassword, 'newpwd:', newPassword)
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: 'Current and new passwords are required' });
+  }
+  
+  db.query('SELECT password FROM user WHERE user_id = ?', [user_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching user password:', err);
+      return res.status(500).json({ error: 'Error fetching user password' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const hashedPassword = results[0].password;
+
+    bcrypt.compare(currentPassword, hashedPassword, (err, passwordMatch) => {
+      if (err) {
+        console.error('Error comparing passwords:', err);
+        return res.status(500).json({ error: 'Error comparing passwords' });
+      }
+      if (!passwordMatch) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+      bcrypt.hash(newPassword, salt, (err, hashedNewPassword) => {
+        if (err) {
+          console.error('Error hashing new password:', err);
+          return res.status(500).json({ error: 'Error hashing new password' });
+        }
+
+        db.query('UPDATE user SET password = ? WHERE user_id = ?', [hashedNewPassword, user_id], (err, result) => {
+          if (err) {
+            console.error('Error updating password:', err);
+            return res.status(500).json({ error: 'Error updating password' });
+          }
+
+          if (result.affectedRows === 1) {
+            return res.json({ message: 'Password updated successfully' });
+          } else {
+            return res.status(500).json({ error: 'Password update failed' });
+          }
+        });
+      });
+    });
   });
 });
 

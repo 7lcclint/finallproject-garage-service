@@ -24,15 +24,22 @@ function Login() {
         event.preventDefault();
         axios.post('http://localhost:3456/login', values)
         .then(response => {
-          console.log(response)
+          console.log(response.data);
           if (response.data.Status === "Successfully"){
-            navigateTo('/')
-            location.reload(true)
+            window.localStorage.setItem('isLoggedIn', true);
+            window.localStorage.setItem('userType',response.data.user_type);
+            console.log("Before navigation");
+            navigateTo('/');
+            location.reload();
+            console.log("After navigation");
           }else{
-            alert("Error: " + response.data.Error)
+            alert("Error: " + (response.data.Error || 'Unknown Error'));
           }
         })
-        .then(error => console.log(error));
+        .catch(error => {
+          console.log('Error:', error);
+          alert("An error occurred. Please try again later.");
+        });
       }
 
     return (

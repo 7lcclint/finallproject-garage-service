@@ -1,4 +1,4 @@
-import { Route, Routes, BrowserRouter } from 'react-router-dom';
+import { Route, Routes, BrowserRouter, Navigate } from 'react-router-dom';
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from './components/MainPage/Home.jsx';
@@ -18,11 +18,11 @@ import Promotions from './components/Dashboard/promotionsTable/Promotions.jsx';
 import Reports from './components/Dashboard/reports/Reports.jsx';
 import ReportsPromotions from './components/Dashboard/reportsPromotions/ReportsPromotions.jsx';
 import ReportsRevenue from './components/Dashboard/reportsRevenue/ReportsRevenue.jsx';
+import RepairHistory from './components/Dashboard/repairHistory/repairHistory';
 
 function App() {
 
-  const isLoggedIn = window.localStorage.getItem('isLoggedIn');
-
+  const isLoggedIn = window.localStorage.getItem('isLoggedIn')
   console.log('isLoggedIn : ', isLoggedIn);
 
   return (
@@ -32,8 +32,8 @@ function App() {
       <Route path="/services" element={<Services />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/about" element={<About />} />
-      <Route path="/register" element={<Register/>} />
-      <Route path="/login" element={<Login/>} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<Login />} />
       {isLoggedIn ? (
         <Route path="/dashboard/*" element={<DashBoard />}>
         <Route path="summary" element={<Summary />} />
@@ -46,15 +46,10 @@ function App() {
         <Route path="reports" element={<Reports />} />
         <Route path="reportsPromotions" element={<ReportsPromotions />} />
         <Route path="reportsRevenue" element={<ReportsRevenue />} />
+        <Route path="repairHistory" element={<RepairHistory />} />
       </Route>
       ) : (
-        <Route path="dashboard/*" element={<Home />}>
-        <Route path="summary" element={<Home />} />
-        <Route path="users" element={<Home />} />
-        <Route path="products" element={<Home />} />
-        <Route path="summary" element={<Home />} />
-        <Route path="users/:id" element={<Home />} />
-        <Route path="products/:id" element={<Home />} />
+        <Route path="*" element={<Navigate to="/"  replace/>}>
       </Route>
       )}
     </Routes>

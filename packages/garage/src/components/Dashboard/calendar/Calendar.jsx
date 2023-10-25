@@ -29,7 +29,7 @@ function Calendar() {
 
     const fetchReservations = () => {
         axios
-            .get('http://garage.thammadalok.com/api/reservations')
+            .get('http://localhost:3456/reservations')
             .then((response) => {
                 console.log(response.data);
                 setReservations(
@@ -115,7 +115,7 @@ function Calendar() {
             };
 
             axios
-                .post('http://garage.thammadalok.com/api/bookqueue', data)
+                .post('http://localhost:3456/bookqueue', data)
                 .then((response) => {
                     console.log('Data inserted successfully:', response.data);
                     alert('Data inserted successfully');
@@ -158,7 +158,7 @@ function Calendar() {
                             printOptions: { disableToolbarButton: true },
                             csvOptions: { disableToolbarButton: true },
                         },
-                      }}
+                    }}
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },

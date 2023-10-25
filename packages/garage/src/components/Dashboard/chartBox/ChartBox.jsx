@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import "./chartBox.css";
 import PropTypes from "prop-types";
 import { Line, LineChart, ResponsiveContainer, Tooltip } from "recharts";
@@ -12,9 +11,6 @@ const ChartBox = (props) => {
           <span>{props.title}</span>
         </div>
         <h1>{props.number}</h1>
-        <Link to="/" style={{ color: props.color }}>
-          View all
-        </Link>
       </div>
       <div className="chartInfo">
         <div className="chart">

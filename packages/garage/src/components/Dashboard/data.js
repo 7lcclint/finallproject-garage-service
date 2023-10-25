@@ -158,7 +158,7 @@ export const menu = [
   export const chartBoxUser = {
     color: "#8884d8",
     icon: "/userIcon.svg",
-    title: "Total Users",
+    title: "Total Customers",
     number: "11.238",
     dataKey: "users",
     percentage: 45,

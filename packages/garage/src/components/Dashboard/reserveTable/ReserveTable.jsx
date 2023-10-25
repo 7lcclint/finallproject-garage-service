@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import './reserveTable.css'
 import 'dayjs/locale/th';
 import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
 function ReserveTable() {
 
@@ -17,7 +17,7 @@ function ReserveTable() {
     const [reserves, setReserves] = useState([]);
 
     const reloadReservations = () => {
-        axios.get('http://garage.thammadalok.com/api/allReservations')
+        axios.get('http://localhost:3456/allReservations')
             .then((response) => {
               console.log('reserve data: ',response.data);
               setReserves(
@@ -96,7 +96,7 @@ function ReserveTable() {
         console.log('data', data);
         console.log('data.reserve_id', selectedRow.reserve_id);
         axios
-            .put(`http://garage.thammadalok.com/api/updateReserveData/${selectedRow.reserve_id}`, data)
+            .put(`http://localhost:3456/updateReserveData/${selectedRow.reserve_id}`, data)
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');
@@ -120,6 +120,17 @@ function ReserveTable() {
                     columns={columns}
                     onRowClick={handleRowClick}
                     disableRowSelectionOnClick
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                        showQuickFilter: true,
+                        printOptions: { disableToolbarButton: true },
+                        csvOptions: { disableToolbarButton: true },
+                        },
+                    }}
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },

@@ -239,3 +239,21 @@ img.profile-rounded {
     border-radius: 5px;
     cursor: pointer;
 }
+
+.edit-button-grey {
+    background-color: rgba(86, 85, 85, 0.9);
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-button-grey:hover {
+    background-color: grey;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}

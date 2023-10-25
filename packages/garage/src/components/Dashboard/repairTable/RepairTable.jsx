@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './repairTable.css'
 import 'dayjs/locale/th';
 import axios from 'axios';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
@@ -13,7 +13,7 @@ function RepairTable() {
     const [reapares, setRepair] = useState([]);
 
     const reloadReservations = () => {
-        axios.get('http://garage.thammadalok.com/api/reservationsByStatusAccept')
+        axios.get('http://localhost:3456/reservationsByStatusAccept')
         .then((response) => {
             console.log('API Response:', response);
             console.log('reserve data:', response.data);
@@ -33,7 +33,7 @@ function RepairTable() {
         .catch((error) => {
             console.error('Error fetching promotiona:', error);
         });
-        axios.get('http://garage.thammadalok.com/api/repairData')
+        axios.get('http://localhost:3456/repairData')
             .then((response) => {
               console.log('repair data: ',response.data);
               setRepair(
@@ -130,7 +130,7 @@ function RepairTable() {
             ...formData,
             repair_status: params.row.repair_status,
         });
-        handleShow(); // Open the modal
+        handleShow();
     };
 
     const [add, setAdd] = useState();
@@ -138,7 +138,7 @@ function RepairTable() {
     const [promotions, setPromotions] = useState([]);
     useEffect(() => {
         axios
-            .get('http://garage.thammadalok.com/api/getPromotions')
+            .get('http://localhost:3456/getPromotions')
             .then((response) => {
               console.log(response.data);
               setPromotions(
@@ -167,14 +167,16 @@ function RepairTable() {
             return;
         }
         const data = {
-            repair_status: selectedRow.repair_status
+            repair_status: selectedRow.repair_status,
+            full_service: priceData.fullPrice,
+            discount_service: priceData.fullPrice
         };
         data.repair_id = selectedRow.repair_id;
 
         console.log('data', data);
         console.log('data.repair_id', data.repair_id);
         axios
-            .put(`http://garage.thammadalok.com/api/updateRepairData/${selectedRow.repair_id}`, data)
+            .put(`http://localhost:3456/updateRepairData/${selectedRow.repair_id}`, data)
             .then((response) => {
                 console.log('Data updated successfully:', response.data);
                 alert('Data updated successfully');
@@ -190,6 +192,33 @@ function RepairTable() {
     };
 
     const [selectedOption, setSelectedOption] = useState(null);
+    const [priceData, setPriceData] = useState({
+        fullPrice: 0,
+        discountPrice: 0
+    });
+
+    const handleSelectedPromotion = (e) => {
+        const select = e.target.value
+        console.log('Selected promotion', select);
+        const selectedPromotion = promotions.find((item) => item.promotion_id === parseInt(select));
+        console.log('selectedPromotion',selectedPromotion)
+        
+        if(selectedPromotion.money === 0){
+            console.log('percent',selectedPromotion.percent)
+            
+            const discountPercent = selectedPromotion.percent;
+            const fullPrice = parseFloat(priceData.fullPrice);
+            const discountPrice = fullPrice - (fullPrice * discountPercent / 100);
+            setPriceData({ ...priceData, discountPrice: discountPrice  });
+        } else {
+            const fullPrice = parseFloat(priceData.fullPrice);
+            const discountPrice = fullPrice - selectedPromotion.money;
+            setPriceData({ ...priceData, discountPrice: discountPrice });
+            console.log('money',selectedPromotion.money)
+        }
+        console.log('fullPrice',priceData.fullPrice)
+        console.log('discountPrice',priceData.discountPrice)
+    }
 
     const handleOptionChange = (event) => {
         const selectedId = event.target.value;
@@ -226,6 +255,17 @@ function RepairTable() {
                     rows={reapares}
                     columns={columns}
                     onRowClick={handleRowClick}
+                    disableColumnFilter
+                    disableColumnSelector
+                    disableDensitySelector
+                    slots={{ toolbar: GridToolbar }}
+                    slotProps={{
+                        toolbar: {
+                            showQuickFilter: true,
+                            printOptions: { disableToolbarButton: true },
+                            csvOptions: { disableToolbarButton: true },
+                        },
+                    }}
                     initialState={{
                         pagination: {
                             paginationModel: { page: 0, pageSize: 5 },
@@ -341,11 +381,11 @@ function RepairTable() {
                                 <div className="col">
                                     <Form.Label>ราคาเต็ม</Form.Label>
                                     <Form.Control
-                                        type="text"
+                                        type="number"
                                         name="full_service"
-                                        value={selectedRow?.full_service || '-'}
+                                        value={priceData.fullPrice}
                                         disabled={selectedRow?.repair_status !== '4'}
-                                        onChange={handleFormChange}
+                                        onChange={(e) => setPriceData({ ...priceData, fullPrice: e.target.value })}
                                     />
                                 </div>
                                 <div className="col">
@@ -364,14 +404,17 @@ function RepairTable() {
                                     <Form.Label>โปรโมชั่นที่ใช้</Form.Label>
                                     <Form.Select 
                                     aria-label="Default select example"
+                                    name="promotion_id"
+                                    onChange={handleSelectedPromotion}
                                     disabled={selectedRow?.repair_status !== '4'}
                                     >
-                                        <option>เลือกโปรโมชั่น</option>
-                                        {promotions.map((promotion)=>{
-                                            <option value={promotion.id} key={promotion.id}>
-                                                {promotions}
+                                        {promotions.map((item) => (
+                                            <option key={item.promotion_id} value={item.promotion_id}>
+                                                {item.promotion_name+" "}
+                                                ลด: {item.money} บาท
+                                                ลด: {item.percent} เปอร์เซ็นต์
                                             </option>
-                                        })}
+                                        ))}
                                     </Form.Select>
                                 </div>
                             </div>
